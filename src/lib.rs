@@ -24,10 +24,17 @@ use html_minifier::HTMLMinifier;
 lazy_static_include_str!(MarkdownCSS, "resources/github-markdown.css");
 lazy_static_include_str!(FontCJK, "resources/font-cjk.css");
 lazy_static_include_str!(FontCJKMono, "resources/font-cjk-mono.css");
+lazy_static_include_str!(Github, "resources/github.css");
 
 lazy_static_include_str!(Webfont, "resources/webfont.js");
 lazy_static_include_str!(JQuerySlim, "resources/jquery-slim.min.js");
 lazy_static_include_str!(WebfontLoader, "resources/webfontloader.min.js");
+lazy_static_include_str!(HighlightCode, "resources/highlight-code.js");
+lazy_static_include_str!(MathJax, "resources/mathjax.min.js");
+
+lazy_static_include_str!(Highlight, "resources/highlight.min.js.html");
+
+lazy_static_include_str!(MathJaxMarkdown, "resources/mathjax-markdown.html");
 
 // TODO -----Config START-----
 
@@ -204,6 +211,8 @@ pub fn run(config: Config) -> Result<i32, String> {
             options.safe = true;
         }
 
+        options.ext_autolink = true;
+
         markdown_to_html(&markdown, &options)
     };
 
@@ -215,6 +224,7 @@ pub fn run(config: Config) -> Result<i32, String> {
     minifier.digest("<head>").map_err(|err| err.to_string())?;
     minifier.digest("<meta charset=UTF-8>").map_err(|err| err.to_string())?;
     minifier.digest("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">").map_err(|err| err.to_string())?;
+    minifier.digest(&format!("<meta name=\"generator\" content=\"{} {} by magiclen.org\"/>", APP_NAME, CARGO_PKG_VERSION, )).map_err(|err| err.to_string())?;
 
     minifier.digest("<title>").map_err(|err| err.to_string())?;
     minifier.digest(title).map_err(|err| err.to_string())?;
@@ -224,7 +234,19 @@ pub fn run(config: Config) -> Result<i32, String> {
     minifier.digest(&MarkdownCSS).map_err(|err| err.to_string())?;
     minifier.digest("</style>").map_err(|err| err.to_string())?;
 
-    if !config.no_cjk_fonts {
+    let has_code = {
+        if config.no_highlight {
+            false
+        } else {
+            markdown_html.find("</code></pre>").is_some()
+        }
+    };
+
+    let has_mathjax = {
+        markdown_html.find("#{{").is_some()
+    };
+
+    if !config.no_cjk_fonts || !has_code {
         minifier.digest("<script>").map_err(|err| err.to_string())?;
         minifier.digest(&JQuerySlim).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
@@ -244,6 +266,23 @@ pub fn run(config: Config) -> Result<i32, String> {
         minifier.digest("</style>").map_err(|err| err.to_string())?;
     }
 
+    if has_code {
+        minifier.digest("<script>").map_err(|err| err.to_string())?;
+        minifier.digest(&Highlight).map_err(|err| err.to_string())?;
+        minifier.digest("</script>").map_err(|err| err.to_string())?;
+
+        minifier.digest("<style>").map_err(|err| err.to_string())?;
+        minifier.digest(&Github).map_err(|err| err.to_string())?;
+        minifier.digest("</style>").map_err(|err| err.to_string())?;
+    }
+
+    if has_mathjax {
+        minifier.digest(&MathJaxMarkdown).map_err(|err| err.to_string())?;
+        minifier.digest("<script>").map_err(|err| err.to_string())?;
+        minifier.digest(&MathJax).map_err(|err| err.to_string())?;
+        minifier.digest("</script>").map_err(|err| err.to_string())?;
+    }
+
     minifier.digest("</head>").map_err(|err| err.to_string())?;
 
     minifier.digest("<body>").map_err(|err| err.to_string())?;
@@ -255,6 +294,12 @@ pub fn run(config: Config) -> Result<i32, String> {
     if !config.no_cjk_fonts {
         minifier.digest("<script>").map_err(|err| err.to_string())?;
         minifier.digest(&Webfont).map_err(|err| err.to_string())?;
+        minifier.digest("</script>").map_err(|err| err.to_string())?;
+    }
+
+    if has_code {
+        minifier.digest("<script>").map_err(|err| err.to_string())?;
+        minifier.digest(&HighlightCode).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
     }
 

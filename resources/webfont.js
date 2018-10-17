@@ -15,12 +15,12 @@ WebFont.load({
 });
 WebFont.load({
     custom: {
-        families: ['CJK Mono:n4,n7']
+        families: ['CJK MONO:n4,n7']
     },
     testStrings: testStrings,
     fontactive: function(){
         if(++cjkMonoCounter === 2) {
-            alert('123');
+            $('code').css('font-family', 'CJK MONO');
         }
     }
 });
