@@ -4,6 +4,7 @@
 extern crate clap;
 extern crate html_minifier;
 extern crate comrak;
+extern crate htmlescape;
 
 #[macro_use]
 extern crate lazy_static_include;
@@ -284,14 +285,14 @@ pub fn run(config: Config) -> Result<i32, String> {
     minifier.digest(&format!("<meta name=\"generator\" content=\"{} {} by magiclen.org\"/>", APP_NAME, CARGO_PKG_VERSION, )).map_err(|err| err.to_string())?;
 
     minifier.digest("<title>").map_err(|err| err.to_string())?;
-    minifier.digest(title).map_err(|err| err.to_string())?;
+    minifier.digest(&htmlescape::encode_minimal(title)).map_err(|err| err.to_string())?;
     minifier.digest("</title>").map_err(|err| err.to_string())?;
 
     minifier.digest("<style>").map_err(|err| err.to_string())?;
     match config.css_path {
         Some(with_css_path) => {
             let with_css = fs::read_to_string(with_css_path).map_err(|err| err.to_string())?;
-            minifier.digest(&with_css).map_err(|err| err.to_string())?;
+            minifier.digest(&htmlescape::encode_minimal(&with_css)).map_err(|err| err.to_string())?;
         }
         None => {
             minifier.digest(&MarkdownCSS).map_err(|err| err.to_string())?;
@@ -340,7 +341,7 @@ pub fn run(config: Config) -> Result<i32, String> {
         match config.highlight_js_path {
             Some(with_highlight_js_path) => {
                 let with_highlight_js = fs::read_to_string(with_highlight_js_path).map_err(|err| err.to_string())?;
-                minifier.digest(&with_highlight_js).map_err(|err| err.to_string())?;
+                minifier.digest(&htmlescape::encode_minimal(&with_highlight_js)).map_err(|err| err.to_string())?;
             }
             None => {
                 minifier.digest(&Highlight).map_err(|err| err.to_string())?;
@@ -352,7 +353,7 @@ pub fn run(config: Config) -> Result<i32, String> {
         match config.highlight_css_path {
             Some(with_highlight_css_path) => {
                 let with_highlight_css = fs::read_to_string(with_highlight_css_path).map_err(|err| err.to_string())?;
-                minifier.digest(&with_highlight_css).map_err(|err| err.to_string())?;
+                minifier.digest(&htmlescape::encode_minimal(&with_highlight_css)).map_err(|err| err.to_string())?;
             }
             None => {
                 minifier.digest(&Github).map_err(|err| err.to_string())?;
@@ -370,7 +371,7 @@ pub fn run(config: Config) -> Result<i32, String> {
         match config.mathjax_js_path {
             Some(with_mathjax_js_path) => {
                 let with_mathjax_js = fs::read_to_string(with_mathjax_js_path).map_err(|err| err.to_string())?;
-                minifier.digest(&with_mathjax_js).map_err(|err| err.to_string())?;
+                minifier.digest(&htmlescape::encode_minimal(&with_mathjax_js)).map_err(|err| err.to_string())?;
             }
             None => {
                 minifier.digest(&MathJax).map_err(|err| err.to_string())?;
