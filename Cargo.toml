@@ -1,0 +1,18 @@
+[package]
+name = "markdown2html-converter"
+version = "0.1.0"
+authors = ["Magic Len <len@magiclen.org>"]
+repository = "https://github.com/magiclen/markdown2html-converter"
+homepage = "https://magiclen.org/markdown2html-converter"
+keywords = ["markdown", "html"]
+categories = ["command-line-utilities"]
+description= "A tool for converting a Markdown file to a single HTML file with built-in CSS and JS."
+readme = "README.md"
+license = "MIT"
+
+[dependencies]
+clap = "2.32.0"
+lazy-static-include = "1.2.0"
+html-minifier = "1.1.2"
+comrak = "0.3"
+lazy_static = "1.1"

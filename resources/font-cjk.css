@@ -1,0 +1,10 @@
+@font-face {
+    font-family: 'CJK';
+    src: local('Noto Sans CJK TC Regular'), local('Noto Sans CJK JP Regular'), local('Noto Sans CJK KR Regular'), local('Noto Sans CJK SC Regular'), local('Source Han Sans TC Regular'), local('Source Han Sans TW Regular'), local('Noto Sans TC Regular'), url('https://cdn.jsdelivr.net/gh/magiclen/source-han-sans-tc-woff2@1.0.0/SourceHanSansTC-Regular.woff2') format('woff2')
+}
+
+@font-face {
+    font-family: 'CJK';
+    font-weight: bold;
+    src: local('Noto Sans CJK TC Bold'), local('Noto Sans CJK JP Bold'), local('Noto Sans CJK KR Bold'), local('Noto Sans CJK SC Bold'), local('Source Han Sans TC Bold'), local('Source Han Sans TW Bold'), local('Noto Sans TC Bold'), url('https://cdn.jsdelivr.net/gh/magiclen/source-han-sans-tc-woff2@1.0.0/SourceHanSansTC-Bold.woff2') format('woff2')
+}
