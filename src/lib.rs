@@ -31,10 +31,9 @@ lazy_static_include_str!(JQuerySlim, "resources/jquery-slim.min.js");
 lazy_static_include_str!(WebfontLoader, "resources/webfontloader.min.js");
 lazy_static_include_str!(HighlightCode, "resources/highlight-code.js");
 lazy_static_include_str!(MathJax, "resources/mathjax.min.js");
+lazy_static_include_str!(MathJaxConfig, "resources/mathjax-config.js");
 
 lazy_static_include_str!(Highlight, "resources/highlight.min.js.html");
-
-lazy_static_include_str!(MathJaxMarkdown, "resources/mathjax-markdown.html");
 
 // TODO -----Config START-----
 
@@ -52,6 +51,10 @@ pub struct Config {
     pub no_highlight: bool,
     pub no_mathjax: bool,
     pub no_cjk_fonts: bool,
+    pub css_path: Option<String>,
+    pub highlight_js_path: Option<String>,
+    pub highlight_css_path: Option<String>,
+    pub mathjax_js_path: Option<String>,
 }
 
 impl Config {
@@ -80,6 +83,7 @@ impl Config {
                 .short("t")
                 .help("Specifies the title of your HTML file.")
                 .takes_value(true)
+                .display_order(1)
             )
             .arg(Arg::with_name("MARKDOWN_PATH")
                 .required(true)
@@ -92,26 +96,59 @@ impl Config {
                 .short("o")
                 .help("Specifies the path of your HTML file.")
                 .takes_value(true)
+                .display_order(2)
             )
             .arg(Arg::with_name("NO_SAFE")
                 .required(false)
                 .long("no-safe")
                 .help("Allows raw HTML and dangerous URLs.")
+                .display_order(3)
             )
             .arg(Arg::with_name("NO_HIGHLIGHT")
                 .required(false)
                 .long("no-highlight")
                 .help("Not allow to use highlight.js.")
+                .display_order(4)
             )
             .arg(Arg::with_name("NO_MATHJAX")
                 .required(false)
                 .long("no-mathjax")
                 .help("Not allow to use mathjax.js.")
+                .display_order(5)
             )
             .arg(Arg::with_name("NO_CJK_FONTS")
                 .required(false)
                 .long("no-cjk-fonts")
                 .help("Not allow to use CJK fonts.")
+                .display_order(6)
+            )
+            .arg(Arg::with_name("CSS_PATH")
+                .required(false)
+                .long("css-path")
+                .help("Specifies the path of your custom CSS file.")
+                .takes_value(true)
+                .display_order(100)
+            )
+            .arg(Arg::with_name("HIGHLIGHT_JS_PATH")
+                .required(false)
+                .long("highlight-js-path")
+                .help("Specifies the path of your custom highlight.js file.")
+                .takes_value(true)
+                .display_order(101)
+            )
+            .arg(Arg::with_name("HIGHLIGHT_CSS_PATH")
+                .required(false)
+                .long("highlight-css-path")
+                .help("Specifies the path of your custom CSS file for highlight.js code blocks.")
+                .takes_value(true)
+                .display_order(102)
+            )
+            .arg(Arg::with_name("MATHJAX_JS_PATH")
+                .required(false)
+                .long("mathjax-path-path")
+                .help("Specifies the path of your custom single MathJax.js file.")
+                .takes_value(true)
+                .display_order(103)
             )
             .after_help("Enjoy it! https://magiclen.org")
             .get_matches();
@@ -130,6 +167,14 @@ impl Config {
 
         let no_cjk_fonts = matches.is_present("NO_CJK_FONTS");
 
+        let css_path = matches.value_of("CSS_PATH").map(|s| s.to_string());
+
+        let highlight_js_path = matches.value_of("HIGHLIGHT_JS_PATH").map(|s| s.to_string());
+
+        let highlight_css_path = matches.value_of("HIGHLIGHT_CSS_PATH").map(|s| s.to_string());
+
+        let mathjax_js_path = matches.value_of("MATHJAX_JS_PATH").map(|s| s.to_string());
+
         Ok(Config {
             title,
             markdown_path,
@@ -138,6 +183,10 @@ impl Config {
             no_highlight,
             no_mathjax,
             no_cjk_fonts,
+            css_path: css_path,
+            highlight_js_path: highlight_js_path,
+            highlight_css_path: highlight_css_path,
+            mathjax_js_path: mathjax_js_path,
         })
     }
 }
@@ -212,6 +261,14 @@ pub fn run(config: Config) -> Result<i32, String> {
         }
 
         options.ext_autolink = true;
+        options.ext_description_lists = true;
+        options.ext_footnotes = true;
+        options.ext_strikethrough = true;
+        options.ext_superscript = true;
+        options.ext_table = true;
+        options.ext_tagfilter = true;
+        options.ext_tasklist = true;
+        options.hardbreaks = true;
 
         markdown_to_html(&markdown, &options)
     };
@@ -231,7 +288,15 @@ pub fn run(config: Config) -> Result<i32, String> {
     minifier.digest("</title>").map_err(|err| err.to_string())?;
 
     minifier.digest("<style>").map_err(|err| err.to_string())?;
-    minifier.digest(&MarkdownCSS).map_err(|err| err.to_string())?;
+    match config.css_path {
+        Some(with_css_path) => {
+            let with_css = fs::read_to_string(with_css_path).map_err(|err| err.to_string())?;
+            minifier.digest(&with_css).map_err(|err| err.to_string())?;
+        }
+        None => {
+            minifier.digest(&MarkdownCSS).map_err(|err| err.to_string())?;
+        }
+    }
     minifier.digest("</style>").map_err(|err| err.to_string())?;
 
     let has_code = {
@@ -243,7 +308,11 @@ pub fn run(config: Config) -> Result<i32, String> {
     };
 
     let has_mathjax = {
-        markdown_html.find("#{{").is_some()
+        if config.no_mathjax {
+            false
+        } else {
+            markdown_html.find("#{{").is_some()
+        }
     };
 
     if !config.no_cjk_fonts || !has_code {
@@ -268,18 +337,45 @@ pub fn run(config: Config) -> Result<i32, String> {
 
     if has_code {
         minifier.digest("<script>").map_err(|err| err.to_string())?;
-        minifier.digest(&Highlight).map_err(|err| err.to_string())?;
+        match config.highlight_js_path {
+            Some(with_highlight_js_path) => {
+                let with_highlight_js = fs::read_to_string(with_highlight_js_path).map_err(|err| err.to_string())?;
+                minifier.digest(&with_highlight_js).map_err(|err| err.to_string())?;
+            }
+            None => {
+                minifier.digest(&Highlight).map_err(|err| err.to_string())?;
+            }
+        }
         minifier.digest("</script>").map_err(|err| err.to_string())?;
 
         minifier.digest("<style>").map_err(|err| err.to_string())?;
-        minifier.digest(&Github).map_err(|err| err.to_string())?;
+        match config.highlight_css_path {
+            Some(with_highlight_css_path) => {
+                let with_highlight_css = fs::read_to_string(with_highlight_css_path).map_err(|err| err.to_string())?;
+                minifier.digest(&with_highlight_css).map_err(|err| err.to_string())?;
+            }
+            None => {
+                minifier.digest(&Github).map_err(|err| err.to_string())?;
+            }
+        }
         minifier.digest("</style>").map_err(|err| err.to_string())?;
     }
 
     if has_mathjax {
-        minifier.digest(&MathJaxMarkdown).map_err(|err| err.to_string())?;
+        minifier.digest("<script type=\"text/x-mathjax-config\">").map_err(|err| err.to_string())?;
+        minifier.digest(&MathJaxConfig).map_err(|err| err.to_string())?;
+        minifier.digest("</script>").map_err(|err| err.to_string())?;
+
         minifier.digest("<script>").map_err(|err| err.to_string())?;
-        minifier.digest(&MathJax).map_err(|err| err.to_string())?;
+        match config.mathjax_js_path {
+            Some(with_mathjax_js_path) => {
+                let with_mathjax_js = fs::read_to_string(with_mathjax_js_path).map_err(|err| err.to_string())?;
+                minifier.digest(&with_mathjax_js).map_err(|err| err.to_string())?;
+            }
+            None => {
+                minifier.digest(&MathJax).map_err(|err| err.to_string())?;
+            }
+        }
         minifier.digest("</script>").map_err(|err| err.to_string())?;
     }
 
