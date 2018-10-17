@@ -36,7 +36,6 @@ OPTIONS:
             Specifies the path of your custom CSS file for highlight.js code blocks.
 
         --mathjax-path-path <MATHJAX_JS_PATH>          Specifies the path of your custom single MathJax.js file.
-        --mathjax-config-path <MATHJAX_CONFIG_PATH>    Specifies the path of your custom config JS file for MathJax.js.
 
 ARGS:
     <MARKDOWN_PATH>    Specifies the path of your Markdown file.

@@ -1,6 +1,6 @@
 [package]
 name = "markdown2html-converter"
-version = "1.0.2"
+version = "1.0.3"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/markdown2html-converter"
 homepage = "https://magiclen.org/markdown2html-converter"
