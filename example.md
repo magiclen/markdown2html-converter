@@ -132,7 +132,6 @@ With a reference later in the document defining the URL location:
 
 ## Math
 
-Inline math equation: #{{ \omega = d\phi / dt }}#. Display
-math should get its own line like so:
+Inline math equation: #{{ \omega = d\phi / dt }}#. Display math should get its own line like so:
 
 #{{{I = \int \rho R^{2} dV}}}#

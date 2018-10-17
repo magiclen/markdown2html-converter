@@ -57,7 +57,7 @@ If ` ``` ` is used in the input Markdown file, the [highlight.js](https://highli
 |CSS|
 |CoffeeScript|
 |Diff|
-||HTML, XML|
+|HTML, XML|
 |HTTP|
 |Ini, TOML|
 |JSON|
