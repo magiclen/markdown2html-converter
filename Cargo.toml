@@ -10,6 +10,12 @@ description= "A tool for converting a Markdown file to a single HTML file with b
 readme = "README.md"
 license = "MIT"
 
+[badges]
+travis-ci = { repository = "magiclen/markdown2html-converter", branch = "master" }
+
+[profile.release]
+panic = "abort"
+
 [dependencies]
 clap = "2.32.0"
 lazy-static-include = "1.2.0"
