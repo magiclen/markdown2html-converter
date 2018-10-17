@@ -79,7 +79,7 @@ If `#{{` - `}}#` or `#{{{` - `}}}#` is used in the input Markdown file, the [mat
 
 ## A Markdown Example
 
-[The Markdown File](https://github.com/github/magiclen/blob/master/example.md)
+[The Markdown File](https://github.com/magiclen/markdown2html-converter/blob/master/example.md)
 
 [The HTML File](https://jsfiddle.net/magiclen/jgs324w0/)
 
