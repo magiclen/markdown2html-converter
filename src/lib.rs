@@ -257,8 +257,8 @@ pub fn run(config: Config) -> Result<i32, String> {
     let markdown_html = {
         let mut options = ComrakOptions::default();
 
-        if !config.no_safe {
-            options.safe = true;
+        if config.no_safe {
+            options.unsafe_ = true;
         }
 
         options.ext_autolink = true;
