@@ -22,19 +22,19 @@ use comrak::{markdown_to_html, ComrakOptions};
 
 use html_minifier::HTMLMinifier;
 
-lazy_static_include_str!(MarkdownCSS, "resources/github-markdown.css");
-lazy_static_include_str!(FontCJK, "resources/font-cjk.css");
-lazy_static_include_str!(FontCJKMono, "resources/font-cjk-mono.css");
-lazy_static_include_str!(Github, "resources/github.css");
+lazy_static_include_str!(MARKDOWN_CSS, "resources/github-markdown.css");
+lazy_static_include_str!(FONT_CJK, "resources/font-cjk.css");
+lazy_static_include_str!(FONT_CJK_MONO, "resources/font-cjk-mono.css");
+lazy_static_include_str!(GITHUB, "resources/github.css");
 
-lazy_static_include_str!(Webfont, "resources/webfont.js");
-lazy_static_include_str!(JQuerySlim, "resources/jquery-slim.min.js");
-lazy_static_include_str!(WebfontLoader, "resources/webfontloader.min.js");
-lazy_static_include_str!(HighlightCode, "resources/highlight-code.js");
-lazy_static_include_str!(MathJax, "resources/mathjax.min.js");
-lazy_static_include_str!(MathJaxConfig, "resources/mathjax-config.js");
+lazy_static_include_str!(WEBFONT, "resources/webfont.js");
+lazy_static_include_str!(JQUERYSLIM, "resources/jquery-slim.min.js");
+lazy_static_include_str!(WEBFONT_LOADER, "resources/webfontloader.min.js");
+lazy_static_include_str!(HIGHLIGHT_CODE, "resources/highlight-code.js");
+lazy_static_include_str!(MATH_JAX, "resources/mathjax.min.js");
+lazy_static_include_str!(MATH_JAX_CONFIG, "resources/mathjax-config.js");
 
-lazy_static_include_str!(Highlight, "resources/highlight.min.js.html");
+lazy_static_include_str!(HIGHLIGHT, "resources/highlight.min.js.html");
 
 // TODO -----Config START-----
 
@@ -147,7 +147,7 @@ impl Config {
             .arg(Arg::with_name("MATHJAX_JS_PATH")
                 .required(false)
                 .long("mathjax-path-path")
-                .help("Specifies the path of your custom single MathJax.js file.")
+                .help("Specifies the path of your custom single MATH_JAX.js file.")
                 .takes_value(true)
                 .display_order(103)
             )
@@ -295,7 +295,7 @@ pub fn run(config: Config) -> Result<i32, String> {
             minifier.digest(&htmlescape::encode_minimal(&with_css)).map_err(|err| err.to_string())?;
         }
         None => {
-            minifier.digest(&MarkdownCSS).map_err(|err| err.to_string())?;
+            minifier.digest(&MARKDOWN_CSS).map_err(|err| err.to_string())?;
         }
     }
     minifier.digest("</style>").map_err(|err| err.to_string())?;
@@ -318,21 +318,21 @@ pub fn run(config: Config) -> Result<i32, String> {
 
     if !config.no_cjk_fonts || !has_code {
         minifier.digest("<script>").map_err(|err| err.to_string())?;
-        minifier.digest(&JQuerySlim).map_err(|err| err.to_string())?;
+        minifier.digest(&JQUERYSLIM).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
     }
 
     if !config.no_cjk_fonts {
         minifier.digest("<script>").map_err(|err| err.to_string())?;
-        minifier.digest(&WebfontLoader).map_err(|err| err.to_string())?;
+        minifier.digest(&WEBFONT_LOADER).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
 
         minifier.digest("<style>").map_err(|err| err.to_string())?;
-        minifier.digest(&FontCJK).map_err(|err| err.to_string())?;
+        minifier.digest(&FONT_CJK).map_err(|err| err.to_string())?;
         minifier.digest("</style>").map_err(|err| err.to_string())?;
 
         minifier.digest("<style>").map_err(|err| err.to_string())?;
-        minifier.digest(&FontCJKMono).map_err(|err| err.to_string())?;
+        minifier.digest(&FONT_CJK_MONO).map_err(|err| err.to_string())?;
         minifier.digest("</style>").map_err(|err| err.to_string())?;
     }
 
@@ -344,7 +344,7 @@ pub fn run(config: Config) -> Result<i32, String> {
                 minifier.digest(&htmlescape::encode_minimal(&with_highlight_js)).map_err(|err| err.to_string())?;
             }
             None => {
-                minifier.digest(&Highlight).map_err(|err| err.to_string())?;
+                minifier.digest(&HIGHLIGHT).map_err(|err| err.to_string())?;
             }
         }
         minifier.digest("</script>").map_err(|err| err.to_string())?;
@@ -356,7 +356,7 @@ pub fn run(config: Config) -> Result<i32, String> {
                 minifier.digest(&htmlescape::encode_minimal(&with_highlight_css)).map_err(|err| err.to_string())?;
             }
             None => {
-                minifier.digest(&Github).map_err(|err| err.to_string())?;
+                minifier.digest(&GITHUB).map_err(|err| err.to_string())?;
             }
         }
         minifier.digest("</style>").map_err(|err| err.to_string())?;
@@ -364,7 +364,7 @@ pub fn run(config: Config) -> Result<i32, String> {
 
     if has_mathjax {
         minifier.digest("<script type=\"text/x-mathjax-config\">").map_err(|err| err.to_string())?;
-        minifier.digest(&MathJaxConfig).map_err(|err| err.to_string())?;
+        minifier.digest(&MATH_JAX_CONFIG).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
 
         minifier.digest("<script>").map_err(|err| err.to_string())?;
@@ -374,7 +374,7 @@ pub fn run(config: Config) -> Result<i32, String> {
                 minifier.digest(&htmlescape::encode_minimal(&with_mathjax_js)).map_err(|err| err.to_string())?;
             }
             None => {
-                minifier.digest(&MathJax).map_err(|err| err.to_string())?;
+                minifier.digest(&MATH_JAX).map_err(|err| err.to_string())?;
             }
         }
         minifier.digest("</script>").map_err(|err| err.to_string())?;
@@ -390,13 +390,13 @@ pub fn run(config: Config) -> Result<i32, String> {
 
     if !config.no_cjk_fonts {
         minifier.digest("<script>").map_err(|err| err.to_string())?;
-        minifier.digest(&Webfont).map_err(|err| err.to_string())?;
+        minifier.digest(&WEBFONT).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
     }
 
     if has_code {
         minifier.digest("<script>").map_err(|err| err.to_string())?;
-        minifier.digest(&HighlightCode).map_err(|err| err.to_string())?;
+        minifier.digest(&HIGHLIGHT_CODE).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
     }
 
