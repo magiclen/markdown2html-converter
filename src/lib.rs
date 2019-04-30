@@ -2,6 +2,7 @@
 //! Markdown to HTML Converter is a free tool for converting a Markdown file to a single HTML file with built-in CSS and JS.
 
 extern crate clap;
+extern crate terminal_size;
 extern crate html_minifier;
 extern crate comrak;
 extern crate htmlescape;
@@ -16,6 +17,7 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::fs;
 
+use terminal_size::{Width, terminal_size};
 use clap::{App, Arg};
 
 use comrak::{markdown_to_html, ComrakOptions};
@@ -69,7 +71,14 @@ impl Config {
             "/path/to/file.md -t \"Hello World!\"        # Convert /path/to/file.md to /path/to/file.html, titled \"Hello World!\"",
         ];
 
+        let terminal_width = if let Some((Width(width), _)) = terminal_size() {
+            width as usize
+        } else {
+            0
+        };
+
         let matches = App::new(APP_NAME)
+            .set_term_width(terminal_width)
             .version(CARGO_PKG_VERSION)
             .author(CARGO_PKG_AUTHORS)
             .about(format!("Markdown to HTML Converter is a free tool for converting a Markdown file to a single HTML file with built-in CSS and JS.\n\nEXAMPLES:\n{}", examples.iter()
