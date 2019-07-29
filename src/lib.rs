@@ -31,7 +31,6 @@ lazy_static_include_str!(GITHUB, "resources/github.css");
 
 lazy_static_include_str!(WEBFONT, "resources/webfont.js");
 lazy_static_include_str!(JQUERYSLIM, "resources/jquery-slim.min.js");
-lazy_static_include_str!(WEBFONT_LOADER, "resources/webfontloader.min.js");
 lazy_static_include_str!(HIGHLIGHT_CODE, "resources/highlight-code.js");
 lazy_static_include_str!(MATH_JAX, "resources/mathjax.min.js");
 lazy_static_include_str!(MATH_JAX_CONFIG, "resources/mathjax-config.js");
@@ -325,17 +324,13 @@ pub fn run(config: Config) -> Result<i32, String> {
         }
     };
 
-    if !config.no_cjk_fonts || !has_code {
+    if has_code {
         minifier.digest("<script>").map_err(|err| err.to_string())?;
         minifier.digest(&JQUERYSLIM).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
     }
 
     if !config.no_cjk_fonts {
-        minifier.digest("<script>").map_err(|err| err.to_string())?;
-        minifier.digest(&WEBFONT_LOADER).map_err(|err| err.to_string())?;
-        minifier.digest("</script>").map_err(|err| err.to_string())?;
-
         minifier.digest("<style>").map_err(|err| err.to_string())?;
         minifier.digest(&FONT_CJK).map_err(|err| err.to_string())?;
         minifier.digest("</style>").map_err(|err| err.to_string())?;

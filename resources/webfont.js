@@ -1,26 +1,7 @@
-var testStrings = '123abcABC,./繁體简体한글にっぽんご';
-var cjkCounter = 0;
-var cjkMonoCounter = 0;
+document.getElementsByClassName("markdown-body")[0].style.fontFamily = 'CJK';
 
-WebFont.load({
-    custom: {
-        families: ['CJK:n4,n7']
-    },
-    testStrings: testStrings,
-    fontactive: function(){
-        if(++cjkCounter === 2) {
-            $('.markdown-body').css('font-family', 'CJK');
-        }
-    }
-});
-WebFont.load({
-    custom: {
-        families: ['CJK MONO:n4,n7']
-    },
-    testStrings: testStrings,
-    fontactive: function(){
-        if(++cjkMonoCounter === 2) {
-            $('code').css('font-family', 'CJK MONO');
-        }
-    }
-});
+var code = document.getElementsByTagName("code");
+
+for (var i = 0; i < code.length; ++i) {
+    code[i].style.fontFamily = 'CJK Mono';
+}
