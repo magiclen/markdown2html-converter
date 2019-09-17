@@ -2,6 +2,7 @@
 name = "markdown2html-converter"
 version = "1.0.10"
 authors = ["Magic Len <len@magiclen.org>"]
+edition = "2018"
 repository = "https://github.com/magiclen/markdown2html-converter"
 homepage = "https://magiclen.org/markdown2html-converter"
 keywords = ["markdown", "html", "MathJax", "LaTeX", "highlight"]
