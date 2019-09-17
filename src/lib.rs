@@ -2,10 +2,10 @@
 //! Markdown to HTML Converter is a free tool for converting a Markdown file to a single HTML file with built-in CSS and JS.
 
 extern crate clap;
-extern crate terminal_size;
-extern crate html_minifier;
 extern crate comrak;
+extern crate html_minifier;
 extern crate htmlescape;
+extern crate terminal_size;
 
 #[macro_use]
 extern crate lazy_static_include;
@@ -14,11 +14,11 @@ extern crate lazy_static_include;
 extern crate lazy_static;
 
 use std::env;
-use std::path::{Path, PathBuf};
 use std::fs;
+use std::path::{Path, PathBuf};
 
-use terminal_size::{Width, terminal_size};
 use clap::{App, Arg};
+use terminal_size::{terminal_size, Width};
 
 use comrak::{markdown_to_html, ComrakOptions};
 
@@ -42,7 +42,6 @@ lazy_static_include_str!(HIGHLIGHT, "resources/highlight.min.js.html");
 const APP_NAME: &str = "Markdown to HTML Converter";
 const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
 const CARGO_PKG_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
-
 
 #[derive(Debug)]
 pub struct Config {
@@ -192,10 +191,10 @@ impl Config {
             no_highlight,
             no_mathjax,
             no_cjk_fonts,
-            css_path: css_path,
-            highlight_js_path: highlight_js_path,
-            highlight_css_path: highlight_css_path,
-            mathjax_js_path: mathjax_js_path,
+            css_path,
+            highlight_js_path,
+            highlight_css_path,
+            mathjax_js_path,
         })
     }
 }
@@ -217,7 +216,6 @@ pub fn run(config: Config) -> Result<i32, String> {
         let file_name = markdown_path.file_name().unwrap().to_str().unwrap();
         let file_name_len = file_name.len();
 
-
         let file_stem = markdown_path.file_stem().unwrap().to_str().unwrap();
         let file_stem_len = file_stem.len();
 
@@ -232,29 +230,21 @@ pub fn run(config: Config) -> Result<i32, String> {
         }
 
         let html_path = match &config.html_path {
-            Some(html_path) => {
-                let html_path = PathBuf::from(html_path);
-
-                html_path
-            }
+            Some(html_path) => PathBuf::from(html_path),
             None => {
                 let folder_path = markdown_path.parent().unwrap();
 
-                let html_path = Path::join(folder_path, format!("{}.html", file_stem));
-
-                html_path
+                Path::join(folder_path, format!("{}.html", file_stem))
             }
         };
 
-        if html_path.exists() {
-            if !html_path.is_file() {
-                return Err(format!("`{}` exists and it is not a file.", html_path.to_str().unwrap()));
-            }
+        if html_path.exists() && !html_path.is_file() {
+            return Err(format!("`{}` exists and it is not a file.", html_path.to_str().unwrap()));
         }
 
         let title = match &config.title {
             Some(title) => title,
-            None => file_stem
+            None => file_stem,
         };
 
         (markdown_path, html_path, title)
@@ -290,7 +280,12 @@ pub fn run(config: Config) -> Result<i32, String> {
     minifier.digest("<head>").map_err(|err| err.to_string())?;
     minifier.digest("<meta charset=UTF-8>").map_err(|err| err.to_string())?;
     minifier.digest("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">").map_err(|err| err.to_string())?;
-    minifier.digest(&format!("<meta name=\"generator\" content=\"{} {} by magiclen.org\"/>", APP_NAME, CARGO_PKG_VERSION, )).map_err(|err| err.to_string())?;
+    minifier
+        .digest(&format!(
+            "<meta name=\"generator\" content=\"{} {} by magiclen.org\"/>",
+            APP_NAME, CARGO_PKG_VERSION,
+        ))
+        .map_err(|err| err.to_string())?;
 
     minifier.digest("<title>").map_err(|err| err.to_string())?;
     minifier.digest(&htmlescape::encode_minimal(title)).map_err(|err| err.to_string())?;
@@ -300,7 +295,9 @@ pub fn run(config: Config) -> Result<i32, String> {
     match config.css_path {
         Some(with_css_path) => {
             let with_css = fs::read_to_string(with_css_path).map_err(|err| err.to_string())?;
-            minifier.digest(&htmlescape::encode_minimal(&with_css)).map_err(|err| err.to_string())?;
+            minifier
+                .digest(&htmlescape::encode_minimal(&with_css))
+                .map_err(|err| err.to_string())?;
         }
         None => {
             minifier.digest(&MARKDOWN_CSS).map_err(|err| err.to_string())?;
@@ -344,8 +341,11 @@ pub fn run(config: Config) -> Result<i32, String> {
         minifier.digest("<script>").map_err(|err| err.to_string())?;
         match config.highlight_js_path {
             Some(with_highlight_js_path) => {
-                let with_highlight_js = fs::read_to_string(with_highlight_js_path).map_err(|err| err.to_string())?;
-                minifier.digest(&htmlescape::encode_minimal(&with_highlight_js)).map_err(|err| err.to_string())?;
+                let with_highlight_js =
+                    fs::read_to_string(with_highlight_js_path).map_err(|err| err.to_string())?;
+                minifier
+                    .digest(&htmlescape::encode_minimal(&with_highlight_js))
+                    .map_err(|err| err.to_string())?;
             }
             None => {
                 minifier.digest(&HIGHLIGHT).map_err(|err| err.to_string())?;
@@ -356,8 +356,11 @@ pub fn run(config: Config) -> Result<i32, String> {
         minifier.digest("<style>").map_err(|err| err.to_string())?;
         match config.highlight_css_path {
             Some(with_highlight_css_path) => {
-                let with_highlight_css = fs::read_to_string(with_highlight_css_path).map_err(|err| err.to_string())?;
-                minifier.digest(&htmlescape::encode_minimal(&with_highlight_css)).map_err(|err| err.to_string())?;
+                let with_highlight_css =
+                    fs::read_to_string(with_highlight_css_path).map_err(|err| err.to_string())?;
+                minifier
+                    .digest(&htmlescape::encode_minimal(&with_highlight_css))
+                    .map_err(|err| err.to_string())?;
             }
             None => {
                 minifier.digest(&GITHUB).map_err(|err| err.to_string())?;
@@ -367,15 +370,20 @@ pub fn run(config: Config) -> Result<i32, String> {
     }
 
     if has_mathjax {
-        minifier.digest("<script type=\"text/x-mathjax-config\">").map_err(|err| err.to_string())?;
+        minifier
+            .digest("<script type=\"text/x-mathjax-config\">")
+            .map_err(|err| err.to_string())?;
         minifier.digest(&MATH_JAX_CONFIG).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
 
         minifier.digest("<script>").map_err(|err| err.to_string())?;
         match config.mathjax_js_path {
             Some(with_mathjax_js_path) => {
-                let with_mathjax_js = fs::read_to_string(with_mathjax_js_path).map_err(|err| err.to_string())?;
-                minifier.digest(&htmlescape::encode_minimal(&with_mathjax_js)).map_err(|err| err.to_string())?;
+                let with_mathjax_js =
+                    fs::read_to_string(with_mathjax_js_path).map_err(|err| err.to_string())?;
+                minifier
+                    .digest(&htmlescape::encode_minimal(&with_mathjax_js))
+                    .map_err(|err| err.to_string())?;
             }
             None => {
                 minifier.digest(&MATH_JAX).map_err(|err| err.to_string())?;
