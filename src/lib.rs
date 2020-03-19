@@ -371,7 +371,7 @@ pub fn run(config: Config) -> Result<i32, String> {
 
     if has_mathjax {
         minifier
-            .digest("<script type=\"text/x-mathjax-config\">")
+            .digest("<script>")
             .map_err(|err| err.to_string())?;
         minifier.digest(&MATH_JAX_CONFIG).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
