@@ -11,7 +11,7 @@ extern crate terminal_size;
 extern crate lazy_static_include;
 
 #[macro_use]
-extern crate lazy_static;
+extern crate slash_formatter;
 
 use std::env;
 use std::fs;
@@ -24,18 +24,18 @@ use comrak::{markdown_to_html, ComrakOptions};
 
 use html_minifier::HTMLMinifier;
 
-lazy_static_include_str!(MARKDOWN_CSS, "resources/github-markdown.css");
-lazy_static_include_str!(FONT_CJK, "resources/font-cjk.css");
-lazy_static_include_str!(FONT_CJK_MONO, "resources/font-cjk-mono.css");
-lazy_static_include_str!(GITHUB, "resources/github.css");
-
-lazy_static_include_str!(WEBFONT, "resources/webfont.js");
-lazy_static_include_str!(JQUERYSLIM, "resources/jquery-slim.min.js");
-lazy_static_include_str!(HIGHLIGHT_CODE, "resources/highlight-code.js");
-lazy_static_include_str!(MATH_JAX, "resources/mathjax.min.js");
-lazy_static_include_str!(MATH_JAX_CONFIG, "resources/mathjax-config.js");
-
-lazy_static_include_str!(HIGHLIGHT, "resources/highlight.min.js.html");
+lazy_static_include_str! {
+    MARKDOWN_CSS => concat_with_file_separator!("resources", "github-markdown.css"),
+    FONT_CJK => concat_with_file_separator!("resources", "font-cjk.css"),
+    FONT_CJK_MONO => concat_with_file_separator!("resources", "font-cjk-mono.css"),
+    GITHUB => concat_with_file_separator!("resources", "github.css"),
+    WEBFONT => concat_with_file_separator!("resources", "webfont.js"),
+    JQUERYSLIM => concat_with_file_separator!("resources", "jquery-slim.min.js"),
+    HIGHLIGHT_CODE => concat_with_file_separator!("resources", "highlight-code.js"),
+    MATH_JAX => concat_with_file_separator!("resources", "mathjax.min.js"),
+    MATH_JAX_CONFIG => concat_with_file_separator!("resources", "mathjax-config.js"),
+    HIGHLIGHT => concat_with_file_separator!("resources", "highlight.min.js.html"),
+}
 
 // TODO -----Config START-----
 
@@ -370,9 +370,7 @@ pub fn run(config: Config) -> Result<i32, String> {
     }
 
     if has_mathjax {
-        minifier
-            .digest("<script>")
-            .map_err(|err| err.to_string())?;
+        minifier.digest("<script>").map_err(|err| err.to_string())?;
         minifier.digest(&MATH_JAX_CONFIG).map_err(|err| err.to_string())?;
         minifier.digest("</script>").map_err(|err| err.to_string())?;
 
