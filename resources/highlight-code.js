@@ -1,6 +1,6 @@
-$('code[class^=\'language-\']').each(function (i, block) {
-    var t = $(this);
-    var c = t.attr('class');
-    t.attr('class', c.replace(/language-/g, ''));
-    hljs.highlightBlock(block);
+document.querySelectorAll('code[class^="language-"]').forEach(function(element) {
+    var c = element.getAttribute('class');
+    element.setAttribute('class', c.replace(/language-/g, ''));
+
+    hljs.highlightBlock(element);
 });

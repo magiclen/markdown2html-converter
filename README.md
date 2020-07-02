@@ -43,32 +43,43 @@ Markdown is converted to HTML by the [comrak](https://crates.io/crates/comrak) c
 
 If ` ``` ` is used in the input Markdown file, the [highlight.js](https://highlightjs.org/) will be automatically embedded in the output HTML file. The preset supported languages are listed below.
 
-|Common|Other|
-|---|---|
-|Apache|Go|
-|Bash|Rust|
-|C#|
-|C++|
-|CSS|
-|CoffeeScript|
-|Diff|
-|HTML, XML|
-|HTTP|
-|Ini, TOML|
-|JSON|
-|Java|
-|JavaScript|
-|Makefile|
-|Markdown|
-|Nginx|
-|Objective-C|
-|PHP|
-|Perl|
-|Properties|
-|Python|
-|Ruby|
-|SQL|
-|Shell Session|
+* .properties
+* Apache
+* Bash
+* C
+* C#
+* C++
+* C-like
+* CSS
+* CoffeeScript
+* Diff
+* Go
+* HTML, XML
+* HTTP
+* JSON
+* Java
+* JavaScript
+* Kotlin
+* Less
+* Lua
+* Makefile
+* Markdown
+* Nginx
+* Objective-C
+* PHP
+* PHP Template
+* Perl
+* Python
+* Python REPL
+* Ruby
+* Rust
+* SCSS
+* SQL
+* Shell Session
+* Swift
+* TOML, INI
+* TypeScript
+* YAML
 
 If `#{{` - `}}#` or `#{{{` - `}}}#` is used in the input Markdown file, the [mathjax.js](https://www.mathjax.org/) will be automatically embedded in the output HTML file. `#{{` and `}}#` are `inlineMath` delimiters. `#{{{` and `}}}#` are `displayMath` delimiters. The default **mathjax.js** are using the [tex-mml-chtml](http://docs.mathjax.org/en/latest/web/components/combined.html#tex-mml-chtml) configuration file.
 
@@ -76,7 +87,7 @@ If `#{{` - `}}#` or `#{{{` - `}}}#` is used in the input Markdown file, the [mat
 
 [The Markdown File](https://github.com/magiclen/markdown2html-converter/blob/master/example.md)
 
-[The HTML File](https://jsfiddle.net/magiclen/jgs324w0/)
+[The HTML File](https://jsfiddle.net/magiclen/jgs324w0/latest)
 
 ## License
 

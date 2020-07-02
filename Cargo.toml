@@ -27,11 +27,8 @@ terminal_size = "0.1"
 lazy-static-include = "3"
 html-minifier = "2"
 comrak = "0.7"
-lazy_static = "1"
 html-escape = "0.2"
 slash-formatter = "3"
-
-htmlescape = "0.3"
 
 [dependencies.path-absolutize]
 version = "3"

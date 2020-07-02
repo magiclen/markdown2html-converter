@@ -38,11 +38,10 @@ lazy_static_include_str! {
     FONT_CJK_MONO => concat_with_file_separator!("resources", "font-cjk-mono.css"),
     GITHUB => concat_with_file_separator!("resources", "github.css"),
     WEBFONT => concat_with_file_separator!("resources", "webfont.js"),
-    JQUERYSLIM => concat_with_file_separator!("resources", "jquery-slim.min.js"),
     HIGHLIGHT_CODE => concat_with_file_separator!("resources", "highlight-code.js"),
     MATH_JAX => concat_with_file_separator!("resources", "mathjax.min.js"),
     MATH_JAX_CONFIG => concat_with_file_separator!("resources", "mathjax-config.js"),
-    HIGHLIGHT => concat_with_file_separator!("resources", "highlight.min.js.html"),
+    HIGHLIGHT => concat_with_file_separator!("resources", "highlight.pack.min.js"),
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
@@ -159,7 +158,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         );
     }
 
-    let file_ext = markdown_path.extension().map(|ext| ext.to_string_lossy()).unwrap_or_else(|| "".into());
+    let file_ext =
+        markdown_path.extension().map(|ext| ext.to_string_lossy()).unwrap_or_else(|| "".into());
 
     if !file_ext.eq_ignore_ascii_case("md") && !file_ext.eq_ignore_ascii_case("markdown") {
         return Err(format!(
@@ -169,7 +169,8 @@ fn main() -> Result<(), Box<dyn Error>> {
         .into());
     }
 
-    let file_stem = markdown_path.file_stem().map(|ext| ext.to_string_lossy()).unwrap_or_else(|| "".into());
+    let file_stem =
+        markdown_path.file_stem().map(|ext| ext.to_string_lossy()).unwrap_or_else(|| "".into());
 
     let html_path = match html_path {
         Some(html_path) => Cow::from(Path::new(html_path)),
@@ -258,12 +259,6 @@ fn main() -> Result<(), Box<dyn Error>> {
         }
     };
 
-    if has_code {
-        html_minifier.digest("<script>")?;
-        html_minifier.digest(*JQUERYSLIM)?;
-        html_minifier.digest("</script>")?;
-    }
-
     if !no_cjk_fonts {
         html_minifier.digest("<style>")?;
         html_minifier.digest(*FONT_CJK)?;
@@ -281,9 +276,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let with_highlight_js = fs::read_to_string(with_highlight_js_path)?;
                 html_minifier.digest(html_escape::encode_script(&with_highlight_js))?;
             }
-            None => {
-                html_minifier.digest(*HIGHLIGHT)?;
-            }
+            None => unsafe {
+                html_minifier.indigest(*HIGHLIGHT);
+            },
         }
         html_minifier.digest("</script>")?;
 
@@ -312,9 +307,9 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let with_mathjax_js = fs::read_to_string(with_mathjax_js_path)?;
                 html_minifier.digest(html_escape::encode_script(&with_mathjax_js))?;
             }
-            None => {
-                html_minifier.digest(*MATH_JAX)?;
-            }
+            None => unsafe {
+                html_minifier.indigest(*MATH_JAX);
+            },
         }
         html_minifier.digest("</script>")?;
     }
@@ -327,7 +322,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     html_minifier.digest(&markdown_html)?;
     html_minifier.digest("</article>")?;
 
-    if no_cjk_fonts {
+    if !no_cjk_fonts {
         html_minifier.digest("<script>")?;
         html_minifier.digest(*WEBFONT)?;
         html_minifier.digest("</script>")?;
