@@ -1,12 +1,12 @@
 @font-face {
     font-family: 'CJK MONO';
-    src: local('Noto Sans Mono CJK TC Regular'), local('Noto Sans Mono CJK JP Regular'), local('Noto Sans Mono CJK KR Regular'), local('Noto Sans Mono CJK HC Regular'), local('Noto Sans Mono CJK SC Regular'), local('Source Han Sans HW TC Regular'), local('Source Han Sans HW TW Regular'), local('Noto Sans Mono TC Regular'), url('https://cdn.jsdelivr.net/gh/magiclen/source-han-sans-hw-tc-woff2@2.0.0/SourceHanSansHWTC-Regular.woff2') format('woff2');
+    src: local('Noto Sans Mono CJK TC Regular'), local('Noto Sans Mono CJK JP Regular'), local('Noto Sans Mono CJK KR Regular'), local('Noto Sans Mono CJK HC Regular'), local('Noto Sans Mono CJK SC Regular'), local('Source Han Sans HW TC Regular'), local('Source Han Sans HW TW Regular'), local('Noto Sans Mono TC Regular'), url('https://cdn.jsdelivr.net/gh/magiclen/source-han-sans-hw-tc-woff2@2.0.1/SourceHanSansHWTC-Regular.woff2') format('woff2');
     font-display: swap
 }
 
 @font-face {
     font-family: 'CJK MONO';
     font-weight: bold;
-    src: local('Noto Sans Mono CJK TC Bold'), local('Noto Sans Mono CJK JP Bold'), local('Noto Sans Mono CJK KR Bold'), local('Noto Sans Mono CJK HC Bold'), local('Noto Sans Mono CJK SC Bold'), local('Source Han Sans HW TC Bold'), local('Source Han Sans HW TW Bold'), local('Noto Sans Mono TC Bold'), url('https://cdn.jsdelivr.net/gh/magiclen/source-han-sans-hw-tc-woff2@2.0.0/SourceHanSansHWTC-Bold.woff2') format('woff2');
+    src: local('Noto Sans Mono CJK TC Bold'), local('Noto Sans Mono CJK JP Bold'), local('Noto Sans Mono CJK KR Bold'), local('Noto Sans Mono CJK HC Bold'), local('Noto Sans Mono CJK SC Bold'), local('Source Han Sans HW TC Bold'), local('Source Han Sans HW TW Bold'), local('Noto Sans Mono TC Bold'), url('https://cdn.jsdelivr.net/gh/magiclen/source-han-sans-hw-tc-woff2@2.0.1/SourceHanSansHWTC-Bold.woff2') format('woff2');
     font-display: swap
 }
