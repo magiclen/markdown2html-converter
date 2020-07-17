@@ -1,6 +1,6 @@
 [package]
 name = "markdown2html-converter"
-version = "1.1.0"
+version = "1.1.1"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/markdown2html-converter"
@@ -25,7 +25,7 @@ concat-with = "0.2"
 terminal_size = "0.1"
 
 lazy-static-include = "3"
-html-minifier = "2"
+html-minifier = "2.1"
 comrak = "0.7"
 html-escape = "0.2"
 slash-formatter = "3"
