@@ -7,7 +7,7 @@ all: ./target/x86_64-unknown-linux-musl/release/markdown2html-converter
 install:
 	$(MAKE)
 	sudo cp ./target/x86_64-unknown-linux-musl/release/markdown2html-converter /usr/local/bin/markdown2html-converter
-	sudo chown root. /usr/local/bin/markdown2html-converter
+	sudo chown root: /usr/local/bin/markdown2html-converter
 	sudo chmod 0755 /usr/local/bin/markdown2html-converter
 
 uninstall:
