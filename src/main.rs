@@ -198,18 +198,18 @@ fn main() -> Result<(), Box<dyn Error>> {
         let mut options = ComrakOptions::default();
 
         if no_safe {
-            options.unsafe_ = true;
+            options.render.unsafe_ = true;
         }
 
-        options.ext_autolink = true;
-        options.ext_description_lists = true;
-        options.ext_footnotes = true;
-        options.ext_strikethrough = true;
-        options.ext_superscript = true;
-        options.ext_table = true;
-        options.ext_tagfilter = true;
-        options.ext_tasklist = true;
-        options.hardbreaks = true;
+        options.extension.autolink = true;
+        options.extension.description_lists = true;
+        options.extension.footnotes = true;
+        options.extension.strikethrough = true;
+        options.extension.superscript = true;
+        options.extension.table = true;
+        options.extension.tagfilter = true;
+        options.extension.tasklist = true;
+        options.render.hardbreaks = true;
 
         markdown_to_html(&markdown, &options)
     };

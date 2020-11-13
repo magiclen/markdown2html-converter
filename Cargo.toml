@@ -28,7 +28,7 @@ terminal_size = "0.1"
 
 lazy-static-include = "3"
 html-minifier = "2.1"
-comrak = "0.7"
+comrak = "0.9"
 html-escape = "0.2"
 slash-formatter = "3"
 
