@@ -227,7 +227,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         APP_NAME, CARGO_PKG_VERSION,
     ))?;
     html_minifier.digest("<title>")?;
-    html_minifier.digest(html_escape::encode_text(title.as_ref()))?;
+    html_minifier.digest(html_escape::encode_text(title.as_ref()).as_ref())?;
     html_minifier.digest("</title>")?;
 
     html_minifier.digest("<style>")?;
@@ -235,7 +235,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         Some(with_css_path) => {
             let with_css = fs::read_to_string(with_css_path)?;
 
-            html_minifier.digest(html_escape::encode_style(&with_css))?;
+            html_minifier.digest(html_escape::encode_style(&with_css).as_ref())?;
         }
         None => {
             html_minifier.digest(*MARKDOWN_CSS)?;
@@ -247,7 +247,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         if no_highlight {
             false
         } else {
-            markdown_html.find("</code></pre>").is_some()
+            markdown_html.contains("</code></pre>")
         }
     };
 
@@ -255,7 +255,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         if no_mathjax {
             false
         } else {
-            markdown_html.find("#{{").is_some()
+            markdown_html.contains("#{{")
         }
     };
 
@@ -274,7 +274,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         match highlight_js_path {
             Some(with_highlight_js_path) => {
                 let with_highlight_js = fs::read_to_string(with_highlight_js_path)?;
-                html_minifier.digest(html_escape::encode_script(&with_highlight_js))?;
+                html_minifier.digest(html_escape::encode_script(&with_highlight_js).as_ref())?;
             }
             None => unsafe {
                 html_minifier.indigest(*HIGHLIGHT);
@@ -287,7 +287,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Some(with_highlight_css_path) => {
                 let with_highlight_css = fs::read_to_string(with_highlight_css_path)?;
 
-                html_minifier.digest(html_escape::encode_style(&with_highlight_css))?;
+                html_minifier.digest(html_escape::encode_style(&with_highlight_css).as_ref())?;
             }
             None => {
                 html_minifier.digest(*GITHUB)?;
@@ -305,7 +305,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         match mathjax_js_path {
             Some(with_mathjax_js_path) => {
                 let with_mathjax_js = fs::read_to_string(with_mathjax_js_path)?;
-                html_minifier.digest(html_escape::encode_script(&with_mathjax_js))?;
+                html_minifier.digest(html_escape::encode_script(&with_mathjax_js).as_ref())?;
             }
             None => unsafe {
                 html_minifier.indigest(*MATH_JAX);

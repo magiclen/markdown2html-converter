@@ -1,6 +1,6 @@
 [package]
 name = "markdown2html-converter"
-version = "1.1.2"
+version = "1.1.3"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/markdown2html-converter"
@@ -10,7 +10,7 @@ categories = ["command-line-utilities"]
 description = "A tool for converting a Markdown file to a single HTML file with built-in CSS and JS."
 readme = "README.md"
 license = "MIT"
-include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE"]
+include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE", "resources/*"]
 
 [badges.travis-ci]
 repository = "magiclen/markdown2html-converter"
@@ -27,7 +27,7 @@ concat-with = "0.2"
 terminal_size = "0.1"
 
 lazy-static-include = "3"
-html-minifier = "2.1"
+html-minifier = "3"
 comrak = "0.9"
 html-escape = "0.2"
 slash-formatter = "3"
