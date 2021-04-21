@@ -12,10 +12,6 @@ readme = "README.md"
 license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE", "resources/*"]
 
-[badges.travis-ci]
-repository = "magiclen/markdown2html-converter"
-branch = "master"
-
 [profile.release]
 lto = true
 codegen-units = 1

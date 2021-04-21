@@ -1,7 +1,7 @@
 Markdown to HTML Converter
 ====================
 
-[![Build Status](https://travis-ci.org/magiclen/markdown2html-converter.svg?branch=master)](https://travis-ci.org/magiclen/markdown2html-converter)
+[![CI](https://github.com/magiclen/markdown2html-converter/actions/workflows/ci.yml/badge.svg)](https://github.com/magiclen/markdown2html-converter/actions/workflows/ci.yml)
 
 Markdown to HTML Converter is a free tool for converting a Markdown file to a single HTML file with built-in CSS and JS.
 
