@@ -10,9 +10,6 @@ extern crate html_escape;
 extern crate html_minifier;
 
 #[macro_use]
-extern crate slash_formatter;
-
-#[macro_use]
 extern crate lazy_static_include;
 
 use std::borrow::Cow;
@@ -33,15 +30,15 @@ const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
 const CARGO_PKG_AUTHORS: &str = env!("CARGO_PKG_AUTHORS");
 
 lazy_static_include_str! {
-    MARKDOWN_CSS => concat_with_file_separator!("resources", "github-markdown.css"),
-    FONT_CJK => concat_with_file_separator!("resources", "font-cjk.css"),
-    FONT_CJK_MONO => concat_with_file_separator!("resources", "font-cjk-mono.css"),
-    GITHUB => concat_with_file_separator!("resources", "github.css"),
-    WEBFONT => concat_with_file_separator!("resources", "webfont.js"),
-    HIGHLIGHT_CODE => concat_with_file_separator!("resources", "highlight-code.js"),
-    MATH_JAX => concat_with_file_separator!("resources", "mathjax.min.js"),
-    MATH_JAX_CONFIG => concat_with_file_separator!("resources", "mathjax-config.js"),
-    HIGHLIGHT => concat_with_file_separator!("resources", "highlight.pack.min.js"),
+    MARKDOWN_CSS => "resources/github-markdown.css",
+    FONT_CJK => "resources/font-cjk.css",
+    FONT_CJK_MONO => "resources/font-cjk-mono.css",
+    GITHUB => "resources/github.css",
+    WEBFONT => "resources/webfont.js",
+    HIGHLIGHT_CODE => "resources/highlight-code.js",
+    MATH_JAX => "resources/mathjax.min.js",
+    MATH_JAX_CONFIG => "resources/mathjax-config.js",
+    HIGHLIGHT => "resources/highlight.pack.min.js",
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
