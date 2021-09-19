@@ -43,19 +43,15 @@ Markdown is converted to HTML by the [comrak](https://crates.io/crates/comrak) c
 
 If ` ``` ` is used in the input Markdown file, the [highlight.js](https://highlightjs.org/) will be automatically embedded in the output HTML file. The preset supported languages are listed below.
 
-* .properties
 * Apache
 * Bash
 * C
 * C#
 * C++
-* C-like
 * CSS
-* CoffeeScript
 * Diff
 * Go
 * HTML, XML
-* HTTP
 * JSON
 * Java
 * JavaScript
@@ -71,6 +67,7 @@ If ` ``` ` is used in the input Markdown file, the [highlight.js](https://highli
 * Perl
 * Python
 * Python REPL
+* R
 * Ruby
 * Rust
 * SCSS
@@ -79,6 +76,7 @@ If ` ``` ` is used in the input Markdown file, the [highlight.js](https://highli
 * Swift
 * TOML, INI
 * TypeScript
+* Visual Basic .NET
 * YAML
 
 If `#{{` - `}}#` or `#{{{` - `}}}#` is used in the input Markdown file, the [mathjax.js](https://www.mathjax.org/) will be automatically embedded in the output HTML file. `#{{` and `}}#` are `inlineMath` delimiters. `#{{{` and `}}}#` are `displayMath` delimiters. The default **mathjax.js** are using the [tex-mml-chtml](http://docs.mathjax.org/en/latest/web/components/combined.html#tex-mml-chtml) configuration file.

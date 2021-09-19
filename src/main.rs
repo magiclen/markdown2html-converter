@@ -38,7 +38,7 @@ lazy_static_include_str! {
     HIGHLIGHT_CODE => "resources/highlight-code.js",
     MATH_JAX => "resources/mathjax.min.js",
     MATH_JAX_CONFIG => "resources/mathjax-config.js",
-    HIGHLIGHT => "resources/highlight.pack.min.js",
+    HIGHLIGHT => "resources/highlight.min.js",
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
