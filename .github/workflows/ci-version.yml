@@ -24,7 +24,7 @@ jobs:
     name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} to ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Install libwebp (Linux)
+      - name: Install musl-tools (Linux)
         run: |
           sudo apt update
           sudo apt install musl-tools
