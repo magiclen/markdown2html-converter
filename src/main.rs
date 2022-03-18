@@ -1,13 +1,5 @@
 #[macro_use]
 extern crate concat_with;
-extern crate clap;
-extern crate terminal_size;
-
-extern crate path_absolutize;
-
-extern crate comrak;
-extern crate html_escape;
-extern crate html_minifier;
 
 #[macro_use]
 extern crate lazy_static_include;
