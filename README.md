@@ -14,27 +14,25 @@ markdown2html-converter /path/to/file.md -o /path/to/output.html    # Convert /p
 markdown2html-converter /path/to/file.md -t 'Hello World!'          # Convert /path/to/file.md to /path/to/file.html, titled "Hello World!"
 
 USAGE:
-    markdown2html-converter [FLAGS] [OPTIONS] <MARKDOWN_PATH>
-
-FLAGS:
-        --no-safe         Allows raw HTML and dangerous URLs
-        --no-highlight    Not allow to use highlight.js
-        --no-mathjax      Not allow to use mathjax.js
-        --no-cjk-fonts    Not allow to use CJK fonts
-    -f, --force           Forces to output if the HTML file exists
-    -h, --help            Prints help information
-    -V, --version         Prints version information
-
-OPTIONS:
-    -t, --title <TITLE>                              Specifies the title of your HTML file
-    -o, --html-path <HTML_PATH>                      Specifies the path of your HTML file
-        --css-path <CSS_PATH>                        Specifies the path of your custom CSS file
-        --highlight-js-path <HIGHLIGHT_JS_PATH>      Specifies the path of your custom highlight.js file
-        --highlight-css-path <HIGHLIGHT_CSS_PATH>    Specifies the path of your custom CSS file for highlight.js code blocks
-        --mathjax-path-path <MATHJAX_JS_PATH>        Specifies the path of your custom single MATH_JAX.js file
+    markdown2html-converter [OPTIONS] <MARKDOWN_PATH>
 
 ARGS:
-    <MARKDOWN_PATH>    Specifies the path of your Markdown file
+    <MARKDOWN_PATH>    Specify the path of your Markdown file
+
+OPTIONS:
+    -t, --title <TITLE>                              Specify the title of your HTML file
+    -o, --html-path <HTML_PATH>                      Specify the path of your HTML file
+        --no-safe                                    Allow raw HTML and dangerous URLs
+        --no-highlight                               Not allow to use highlight.js
+        --no-mathjax                                 Not allow to use mathjax.js
+        --no-cjk-fonts                               Not allow to use CJK fonts
+        --css-path <CSS_PATH>                        Specify the path of your custom CSS file
+        --highlight-js-path <HIGHLIGHT_JS_PATH>      Specify the path of your custom highlight.js file
+        --highlight-css-path <HIGHLIGHT_CSS_PATH>    Specify the path of your custom CSS file for highlight.js code blocks
+        --mathjax-path-path <MATHJAX_JS_PATH>        Specify the path of your custom single MATH_JAX.js file
+    -f, --force                                      Force to output if the HTML file exists
+    -h, --help                                       Print help information
+    -V, --version                                    Print version information
 ```
 
 ## Dependency
