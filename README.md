@@ -48,6 +48,7 @@ If ` ``` ` is used in the input Markdown file, the [highlight.js](https://highli
 * C++
 * CSS
 * Diff
+* Dockerfile
 * Go
 * HTML, XML
 * JSON
