@@ -4,18 +4,13 @@ extern crate concat_with;
 #[macro_use]
 extern crate lazy_static_include;
 
-use std::borrow::Cow;
-use std::error::Error;
-use std::fs;
-use std::path::Path;
+use std::{borrow::Cow, error::Error, fs, path::Path};
 
 use clap::{Arg, Command};
-use terminal_size::terminal_size;
-
-use path_absolutize::Absolutize;
-
 use comrak::{markdown_to_html, ComrakOptions};
 use html_minifier::HTMLMinifier;
+use path_absolutize::Absolutize;
+use terminal_size::terminal_size;
 
 const APP_NAME: &str = "Markdown to HTML Converter";
 const CARGO_PKG_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -167,7 +162,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             let folder_path = markdown_path.parent().unwrap();
 
             Cow::from(folder_path.join(format!("{}.html", file_stem)))
-        }
+        },
     };
 
     if let Ok(metadata) = html_path.metadata() {
@@ -210,7 +205,10 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     html_minifier.digest("<head>")?;
     html_minifier.digest("<meta charset=UTF-8>")?;
-    html_minifier.digest("<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">")?;
+    html_minifier.digest(
+        "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1, \
+         shrink-to-fit=no\">",
+    )?;
     html_minifier.digest(format!(
         "<meta name=\"generator\" content=\"{} {} by magiclen.org\"/>",
         APP_NAME, CARGO_PKG_VERSION,
@@ -225,10 +223,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             let with_css = fs::read_to_string(with_css_path)?;
 
             html_minifier.digest(html_escape::encode_style(&with_css).as_ref())?;
-        }
+        },
         None => {
             html_minifier.digest(*MARKDOWN_CSS)?;
-        }
+        },
     }
     html_minifier.digest("</style>")?;
 
@@ -264,7 +262,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Some(with_highlight_js_path) => {
                 let with_highlight_js = fs::read_to_string(with_highlight_js_path)?;
                 html_minifier.digest(html_escape::encode_script(&with_highlight_js).as_ref())?;
-            }
+            },
             None => unsafe {
                 html_minifier.indigest(*HIGHLIGHT);
             },
@@ -277,10 +275,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                 let with_highlight_css = fs::read_to_string(with_highlight_css_path)?;
 
                 html_minifier.digest(html_escape::encode_style(&with_highlight_css).as_ref())?;
-            }
+            },
             None => {
                 html_minifier.digest(*GITHUB)?;
-            }
+            },
         }
         html_minifier.digest("</style>")?;
     }
@@ -295,7 +293,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             Some(with_mathjax_js_path) => {
                 let with_mathjax_js = fs::read_to_string(with_mathjax_js_path)?;
                 html_minifier.digest(html_escape::encode_script(&with_mathjax_js).as_ref())?;
-            }
+            },
             None => unsafe {
                 html_minifier.indigest(*MATH_JAX);
             },

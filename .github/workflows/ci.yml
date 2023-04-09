@@ -9,24 +9,19 @@ jobs:
   rustfmt:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: nightly
-          override: true
           components: rustfmt
-      - run: cargo fmt -- --check
+      - uses: actions-rust-lang/rustfmt@v1
 
   clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          profile: minimal
-          toolchain: nightly
-          override: true
           components: clippy
       - run: cargo clippy --all-targets --all-features -- -D warnings
 
@@ -37,12 +32,15 @@ jobs:
         os:
           - ubuntu-latest
         toolchain:
+          - 1.59
           - stable
           - nightly
         target:
           - x86_64-unknown-linux-gnu
           - x86_64-unknown-linux-musl
-    name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} to ${{ matrix.target }}
+        features:
+          -
+    name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} to ${{ matrix.target }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:
       - name: Install musl-tools (Linux)
@@ -50,16 +48,13 @@ jobs:
           sudo apt update
           sudo apt install musl-tools
         if: matrix.target == 'x86_64-unknown-linux-musl'
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.toolchain }}
           target: ${{ matrix.target }}
-          override: true
-      - run: cargo build --target ${{ matrix.target }}
-      - run: cargo test --target ${{ matrix.target }}
-      - run: cargo doc --target ${{ matrix.target }}
+      - run: cargo test --target ${{ matrix.target }} ${{ matrix.features }}
+      - run: cargo doc --target ${{ matrix.target }} ${{ matrix.features }}
 
   tests-2:
     strategy:
@@ -69,17 +64,18 @@ jobs:
           - macos-latest
           - windows-latest
         toolchain:
+          - 1.59
           - stable
           - nightly
-    name: Test ${{ matrix.toolchain }} on ${{ matrix.os }}
+        features:
+          -
+    name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.toolchain }}
-          override: true
-      - run: cargo build
-      - run: cargo test
-      - run: cargo doc
+          target: ${{ matrix.target }}
+      - run: cargo test ${{ matrix.features }}
+      - run: cargo doc ${{ matrix.features }}
