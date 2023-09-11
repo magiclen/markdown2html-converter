@@ -16,7 +16,6 @@ jobs:
         os:
           - ubuntu-latest
         toolchain:
-          - 1.59
           - stable
           - nightly
         target:
@@ -48,7 +47,6 @@ jobs:
           - macos-latest
           - windows-latest
         toolchain:
-          - 1.59
           - stable
           - nightly
         features:
