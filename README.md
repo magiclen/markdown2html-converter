@@ -70,7 +70,7 @@ If ` ``` ` is used in the input Markdown file, the [highlight.js](https://highli
 * Rust
 * SCSS
 * SQL
-* Shell Session
+* Shell
 * Swift
 * TOML, INI
 * TypeScript
