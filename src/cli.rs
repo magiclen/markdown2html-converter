@@ -13,9 +13,9 @@ const AFTER_HELP: &str = "Enjoy it! https://magiclen.org";
 const APP_ABOUT: &str = concat!(
     "A simple tool for converting Simple Chinese to Traditional Chinese(TW).\n\nEXAMPLES:\n",
     concat_line!(prefix "markdown2html-converter ",
-            "/path/to/file.md                           # Convert /path/to/file.md to /path/to/file.html, titled \"file\"",
-            "/path/to/file.md -o /path/to/output.html   # Convert /path/to/file.md to /path/to/output.html, titled \"output\"",
-            "/path/to/file.md -t 'Hello World!'         # Convert /path/to/file.md to /path/to/file.html, titled \"Hello World!\"",
+        "/path/to/file.md                           # Convert /path/to/file.md to /path/to/file.html, titled \"file\"",
+        "/path/to/file.md -o /path/to/output.html   # Convert /path/to/file.md to /path/to/output.html, titled \"output\"",
+        "/path/to/file.md -t 'Hello World!'         # Convert /path/to/file.md to /path/to/file.html, titled \"Hello World!\"",
     )
 );
 
