@@ -32,7 +32,7 @@ jobs:
           sudo apt install musl-tools
         if: matrix.target == 'x86_64-unknown-linux-musl'
       - uses: actions/checkout@v7
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           toolchain: ${{ matrix.toolchain }}
           target: ${{ matrix.target }}
@@ -55,7 +55,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           toolchain: ${{ matrix.toolchain }}
       - run: cargo test --release ${{ matrix.features }}
@@ -83,7 +83,7 @@ jobs:
           sudo apt install musl-tools
         if: matrix.target == 'x86_64-unknown-linux-musl'
       - uses: actions/checkout@v7
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           toolchain: ${{ matrix.toolchain }}
           target: ${{ matrix.target }}
@@ -104,7 +104,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v2
         with:
           toolchain: ${{ matrix.toolchain }}
       - run: cargo test --release --lib --bins ${{ matrix.features }}
