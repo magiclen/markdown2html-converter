@@ -9,8 +9,8 @@ Markdown to HTML Converter is a free tool for converting a Markdown file to a si
 
 ```
 EXAMPLES:
-markdown2html-converter /path/to/file.md                           # Convert /path/to/file.md to /path/to/file.html, titled "file"
-markdown2html-converter /path/to/file.md -o /path/to/output.html   # Convert /path/to/file.md to /path/to/output.html, titled "output"
+markdown2html-converter /path/to/file.md                           # Convert /path/to/file.md to /path/to/file.html, with fallback title "file"
+markdown2html-converter /path/to/file.md -o /path/to/output.html   # Convert /path/to/file.md to /path/to/output.html, with fallback title "output"
 markdown2html-converter /path/to/file.md -t 'Hello World!'         # Convert /path/to/file.md to /path/to/file.html, titled "Hello World!"
 markdown2html-converter /path/to/file.md --theme dark              # Convert /path/to/file.md to /path/to/file.html, always in the dark theme
 markdown2html-converter /path/to/file.md -o - > /path/to/out.html  # Convert /path/to/file.md and write the HTML to the standard output

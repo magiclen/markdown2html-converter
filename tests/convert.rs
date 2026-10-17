@@ -234,6 +234,20 @@ fn the_highlight_languages_are_configurable() {
 }
 
 #[test]
+fn the_libraries_are_loaded_after_the_article() {
+    let options = ConvertOptions {
+        highlight_js: Some("window.customHighlight = true;"),
+        ..ConvertOptions::default()
+    };
+
+    let html = convert_to_string("$E = mc^2$\n\n```rust\nfn main() {}\n```\n", &options);
+    let article_end = html.find("</article>").unwrap();
+
+    assert!(html.find("katex.min.js").unwrap() > article_end);
+    assert!(html.find("window.customHighlight").unwrap() > article_end);
+}
+
+#[test]
 fn a_fixed_theme_is_written_to_the_html_element() {
     let options = ConvertOptions {
         theme: Theme::Dark,
@@ -317,6 +331,38 @@ fn code_whitespace_is_preserved() {
 
         assert!(html.contains("<code>a  b</code>"));
         assert!(html.contains("<pre><code>  a  b\n</code></pre>"));
+    }
+}
+
+#[test]
+fn math_whitespace_is_preserved() {
+    let literal = "\\verb|a  b|";
+
+    for minify in [false, true] {
+        let options = ConvertOptions {
+            minify,
+            ..ConvertOptions::default()
+        };
+
+        for markdown in [
+            format!("${literal}$"),
+            format!("$${literal}$$"),
+            format!("\\({literal}\\)"),
+            format!("\\[{literal}\\]"),
+            format!("$`{literal}`$"),
+            format!("```math\n{literal}\n```\n"),
+        ] {
+            let html = convert_to_string(markdown.as_str(), &options);
+            let start = html.find("data-math-style=\"").unwrap();
+            let content = &html[start + html[start..].find('>').unwrap() + 1..];
+            let content = &content[..content.find('<').unwrap()];
+
+            assert_eq!(
+                literal,
+                html_escape::decode_html_entities(content).trim_end_matches('\n'),
+                "{markdown}"
+            );
+        }
     }
 }
 

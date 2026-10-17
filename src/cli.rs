@@ -13,8 +13,8 @@ const APP_ABOUT: &str = concat!(
     "A tool for converting a Markdown file to a single HTML file with built-in CSS and \
      JS.\n\nEXAMPLES:\n",
     concat_line!(prefix "markdown2html-converter ",
-        "/path/to/file.md                           # Convert /path/to/file.md to /path/to/file.html, titled \"file\"",
-        "/path/to/file.md -o /path/to/output.html   # Convert /path/to/file.md to /path/to/output.html, titled \"output\"",
+        "/path/to/file.md                           # Convert /path/to/file.md to /path/to/file.html, with fallback title \"file\"",
+        "/path/to/file.md -o /path/to/output.html   # Convert /path/to/file.md to /path/to/output.html, with fallback title \"output\"",
         "/path/to/file.md -t 'Hello World!'         # Convert /path/to/file.md to /path/to/file.html, titled \"Hello World!\"",
         "/path/to/file.md --theme dark              # Convert /path/to/file.md to /path/to/file.html, always in the dark theme",
         "/path/to/file.md -o - > /path/to/out.html  # Convert /path/to/file.md and write the HTML to the standard output",

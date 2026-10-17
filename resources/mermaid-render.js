@@ -1,21 +1,60 @@
-document.querySelectorAll('pre > code.language-mermaid').forEach(function (element) {
-    var diagram = document.createElement('pre');
+(function () {
+    document.querySelectorAll('pre > code.language-mermaid').forEach(function (element) {
+        var diagram = document.createElement('pre');
 
-    diagram.className = 'mermaid';
-    diagram.textContent = element.textContent;
+        diagram.className = 'mermaid';
+        diagram.textContent = element.textContent;
 
-    // A ```mermaid block becomes `<pre><code>`, and the whole `<pre>` has to be replaced.
-    element.parentNode.parentNode.replaceChild(diagram, element.parentNode);
-});
+        // A ```mermaid block becomes `<pre><code>`, and the whole `<pre>` has to be replaced.
+        element.parentNode.parentNode.replaceChild(diagram, element.parentNode);
+    });
 
-// A fixed theme wins, and without one the diagrams follow the same media feature as the rest of the page.
-var theme = document.documentElement.getAttribute('data-theme');
-var dark = theme === 'dark'
-    || (theme === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    // Keep the original HTML because Mermaid replaces each diagram with an SVG.
+    var diagrams = Array.from(document.querySelectorAll('.mermaid'), function (element) {
+        return { element: element, source: element.innerHTML };
+    });
+    var theme = document.documentElement.getAttribute('data-theme');
+    var media = theme === null ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+    var rendering = false;
+    var pending = false;
 
-// `redux-color` is the new default theme of Mermaid 12, and `redux-dark-color` is its dark version.
-mermaid.initialize({ startOnLoad: false, theme: dark ? 'redux-dark-color' : 'redux-color' });
+    async function render() {
+        pending = true;
 
-// `querySelector` has to be repeated here, because its default only applies when `run` is given no argument at all.
-// `suppressErrors` keeps a single broken diagram from stopping the rest of the document from being drawn.
-mermaid.run({ querySelector: '.mermaid', suppressErrors: true });
+        // Finish the current render before applying a newer theme.
+        if (rendering) {
+            return;
+        }
+
+        rendering = true;
+
+        try {
+            while (pending) {
+                pending = false;
+
+                var dark = theme === 'dark' || (media !== null && media.matches);
+
+                // `redux-color` is the new default theme of Mermaid 12, and `redux-dark-color` is its dark version.
+                mermaid.initialize({ startOnLoad: false, theme: dark ? 'redux-dark-color' : 'redux-color' });
+
+                var nodes = diagrams.map(function (diagram) {
+                    diagram.element.innerHTML = diagram.source;
+                    diagram.element.removeAttribute('data-processed');
+
+                    return diagram.element;
+                });
+
+                // `suppressErrors` lets the other diagrams render even if one is broken.
+                await mermaid.run({ nodes: nodes, suppressErrors: true });
+            }
+        } finally {
+            rendering = false;
+        }
+    }
+
+    if (media !== null) {
+        media.addEventListener('change', render);
+    }
+
+    render();
+})();

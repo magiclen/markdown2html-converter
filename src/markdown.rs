@@ -1,6 +1,7 @@
 use std::{
     borrow::Cow,
     collections::HashMap,
+    fmt::{self, Write},
     fs,
     path::Path,
     sync::{Arc, Mutex, PoisonError},
@@ -18,6 +19,48 @@ pub(crate) struct UsedAssets {
     pub(crate) highlight: bool,
     pub(crate) math:      bool,
     pub(crate) mermaid:   bool,
+}
+
+// `context.user` is whether the output is going to be minified.
+comrak::create_formatter!(HtmlFormatter<bool>, {
+    NodeValue::Math(ref math) => |context, node, entering| {
+        if !context.user || !math.dollar_math {
+            return comrak::html::render_math(context, node, entering, math);
+        }
+
+        if entering {
+            context.write_str(if math.display_math {
+                "<span data-math-style=\"display\">"
+            } else {
+                "<span data-math-style=\"inline\">"
+            })?;
+
+            escape_math(context, &math.literal)?;
+            context.write_str("</span>")?;
+        }
+    },
+});
+
+fn escape_math(context: &mut comrak::html::Context<bool>, literal: &str) -> fmt::Result {
+    let mut start = 0;
+
+    // Character references keep the HTML minifier from changing whitespace in TeX.
+    for (index, byte) in literal.bytes().enumerate() {
+        let escaped = match byte {
+            b' ' => "&#32;",
+            b'\t' => "&#9;",
+            b'\n' => "&#10;",
+            b'\r' => "&#13;",
+            b'\x0C' => "&#12;",
+            _ => continue,
+        };
+
+        context.escape(&literal[start..index])?;
+        context.write_str(escaped)?;
+        start = index + 1;
+    }
+
+    context.escape(&literal[start..])
 }
 
 /// Build the **comrak** options matching the given conversion options.
@@ -323,7 +366,7 @@ fn image_mime(extension: &str) -> Option<&'static str> {
 
 #[cfg(test)]
 mod tests {
-    use std::env;
+    use std::{env, process};
 
     use super::*;
 
@@ -362,7 +405,8 @@ mod tests {
 
     #[test]
     fn only_relative_images_are_embedded() {
-        let dir = env::temp_dir().join("markdown2html-converter-unit-embed-image");
+        let dir = env::temp_dir()
+            .join(format!("markdown2html-converter-unit-embed-image-{}", process::id()));
         let sub_dir = dir.join("sub");
         let path = dir.join("pic.png");
 
@@ -386,5 +430,7 @@ mod tests {
         assert_eq!(None, from_dir("https://magiclen.org/pic.png"));
         assert_eq!(None, from_dir("//magiclen.org/pic.png"));
         assert_eq!(None, from_dir("#anchor"));
+
+        let _ = fs::remove_dir_all(dir.as_path());
     }
 }

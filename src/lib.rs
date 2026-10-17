@@ -11,7 +11,7 @@ mod resources;
 
 use std::borrow::Cow;
 
-use comrak::{Arena, format_html, parse_document};
+use comrak::{Arena, parse_document};
 pub use html_minifier::HTMLMinifierError as ConvertError;
 pub use options::*;
 
@@ -72,7 +72,13 @@ pub fn convert(markdown: &str, options: &ConvertOptions) -> Result<Vec<u8>, Conv
         let mut markdown_html = String::with_capacity(markdown.len() * 3 / 2);
 
         // Writing into a `String` never fails.
-        format_html(root, &comrak_options, &mut markdown_html).unwrap();
+        markdown::HtmlFormatter::format_document(
+            root,
+            &comrak_options,
+            &mut markdown_html,
+            options.minify,
+        )
+        .unwrap();
 
         (title, used_assets, markdown_html)
     };
@@ -139,14 +145,37 @@ pub fn convert(markdown: &str, options: &ConvertOptions) -> Result<Vec<u8>, Conv
                 Theme::Dark => output.minified_style(HIGHLIGHT_CSS_DARK)?,
             },
         }
+    }
 
+    match math_mode {
+        Some(MathMode::KatexEmbedded) => match options.katex_css {
+            Some(css) => output.style(html_escape::encode_style(css).as_ref())?,
+            None => output.minified_style(KATEX_CSS)?,
+        },
+        Some(MathMode::KatexClient) => output.stylesheet_link(KATEX_CDN_CSS)?,
+        _ => (),
+    }
+
+    if let Some(css) = options.extra_css {
+        output.style(html_escape::encode_style(css).as_ref())?;
+    }
+
+    output.digest("</head>")?;
+
+    output.digest("<body>")?;
+    output.digest("<article class=\"markdown-body\">")?;
+    output.digest(&markdown_html)?;
+    output.digest("</article>")?;
+
+    // Load the libraries after the article so that they do not block parsing the Markdown content.
+    // Nothing here is deferred or async, because the scripts below use the libraries as soon as they run.
+    if has_code {
         match options.highlight_js {
             Some(js) => output.script(html_escape::encode_script(js).as_ref())?,
             None => output.minified_script(HIGHLIGHT_JS)?,
         }
     }
 
-    // The math library has to be defined before the code which uses it runs, so nothing here is deferred or async.
     if let Some(math_mode) = math_mode {
         match math_mode {
             MathMode::MathJaxEmbedded => {
@@ -167,25 +196,14 @@ pub fn convert(markdown: &str, options: &ConvertOptions) -> Result<Vec<u8>, Conv
                 output.script(MATH_JAX_CONFIG_JS)?;
                 output.external_script(MATH_JAX_CDN_JS)?;
             },
-            MathMode::KatexEmbedded => {
-                match options.katex_css {
-                    Some(css) => output.style(html_escape::encode_style(css).as_ref())?,
-                    None => output.minified_style(KATEX_CSS)?,
-                }
-
-                match options.katex_js {
-                    Some(js) => output.script(html_escape::encode_script(js).as_ref())?,
-                    None => output.minified_script(KATEX_JS)?,
-                }
+            MathMode::KatexEmbedded => match options.katex_js {
+                Some(js) => output.script(html_escape::encode_script(js).as_ref())?,
+                None => output.minified_script(KATEX_JS)?,
             },
-            MathMode::KatexClient => {
-                output.stylesheet_link(KATEX_CDN_CSS)?;
-                output.external_script(KATEX_CDN_JS)?;
-            },
+            MathMode::KatexClient => output.external_script(KATEX_CDN_JS)?,
         }
     }
 
-    // Mermaid is loaded here for the same reason as the math library, and it also has to be ready before highlight.js looks at the code blocks.
     if let Some(mermaid_mode) = mermaid_mode {
         match mermaid_mode {
             MermaidMode::Embedded => match options.mermaid_js {
@@ -195,17 +213,6 @@ pub fn convert(markdown: &str, options: &ConvertOptions) -> Result<Vec<u8>, Conv
             MermaidMode::Client => output.external_script(MERMAID_CDN_JS)?,
         }
     }
-
-    if let Some(css) = options.extra_css {
-        output.style(html_escape::encode_style(css).as_ref())?;
-    }
-
-    output.digest("</head>")?;
-
-    output.digest("<body>")?;
-    output.digest("<article class=\"markdown-body\">")?;
-    output.digest(&markdown_html)?;
-    output.digest("</article>")?;
 
     // This runs first so that the code blocks it turns into diagrams are gone by the time highlight.js walks the document.
     if mermaid_mode.is_some() {

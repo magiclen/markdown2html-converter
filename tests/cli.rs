@@ -1,19 +1,37 @@
 use std::{
     env, fs,
     io::Write,
+    ops::Deref,
     path::PathBuf,
-    process::{Command, Output, Stdio},
+    process::{self, Command, Output, Stdio},
 };
 
 const EXECUTABLE: &str = env!("CARGO_BIN_EXE_markdown2html-converter");
 
-fn temp_dir(name: &str) -> PathBuf {
-    let path = env::temp_dir().join(format!("markdown2html-converter-{name}"));
+/// A temporary directory which is removed when it is dropped.
+struct TempDir(PathBuf);
+
+impl Deref for TempDir {
+    type Target = PathBuf;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Drop for TempDir {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir_all(self.0.as_path());
+    }
+}
+
+fn temp_dir(name: &str) -> TempDir {
+    let path = env::temp_dir().join(format!("markdown2html-converter-{name}-{}", process::id()));
 
     let _ = fs::remove_dir_all(path.as_path());
     fs::create_dir_all(path.as_path()).unwrap();
 
-    path
+    TempDir(path)
 }
 
 fn convert_stdin(markdown: &str, args: &[&str]) -> Output {
