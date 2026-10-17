@@ -1,6 +1,6 @@
 [package]
 name = "markdown2html-converter"
-version = "2.1.0"
+version = "2.1.1"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2024"
 rust-version = "1.89"
