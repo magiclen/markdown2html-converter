@@ -30,6 +30,6 @@ if (!hljs || typeof hljs.listLanguages !== 'function') {
 const names = hljs.listLanguages().flatMap((name) => [name, ...(hljs.getLanguage(name).aliases || [])]);
 
 process.stdout.write('# The languages which the bundled highlight.min.js registers, aliases included.\n');
-process.stdout.write('# Regenerate with: node tools/list-highlight-languages.js resources/highlight.min.js\n');
+process.stdout.write('# Regenerate with: node tools/list-highlight-languages.js resources/highlight.min.js > resources/highlight-languages.txt\n');
 process.stdout.write([...new Set(names)].sort().join('\n'));
 process.stdout.write('\n');

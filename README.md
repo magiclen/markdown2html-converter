@@ -80,6 +80,8 @@ Only the Markdown image syntax, `![alt](pic.png)`, is embedded. A raw `<img>` el
 
 Markdown is converted to HTML by the [comrak](https://crates.io/crates/comrak) crate, with the GFM extensions (tables, task lists, footnotes, autolinks, strikethrough, [alerts](https://github.com/orgs/community/discussions/16925)) enabled. The default stylesheet (the CSS file) is from [sindresorhus/github-markdown-css](https://github.com/sindresorhus/github-markdown-css).
 
+Raw HTML in the Markdown file is left out unless `--unsafe` is used. With `--unsafe`, all of it is kept as it is, including `<script>`, `<style>`, and `<iframe>` elements, so use it only with trusted Markdown files.
+
 If ` ``` ` is used with one of the languages below in the input Markdown file, the [highlight.js](https://highlightjs.org/) will be automatically embedded in the output HTML file. Any other language, such as ` ```plantuml `, leaves it out, because the built-in **highlight.js** could not do anything with it anyway. Use `--highlight-languages` to change that list. Aliases such as `js` and `c++` work too, and the matching ignores the case.
 
 ` ```math ` and ` ```mermaid ` are not on this list either. They are handled by a math renderer and by **Mermaid**, which are described below.
@@ -142,11 +144,11 @@ If math is used in the input Markdown file, a math renderer is added to the outp
 | Mode | Added | Works offline | Notes |
 | --- | --- | --- | --- |
 | `katex-client` (default) | ~0 | no | Loads [KaTeX](https://katex.org/) from a CDN |
-| `katex-embedded` | ~630 KB | yes | Embeds **KaTeX**, its stylesheet, and its fonts |
+| `katex-embedded` | ~640 KB | yes | Embeds **KaTeX**, its stylesheet, and its fonts |
 | `mathjax-client` | ~0 | no | Loads [MathJax](https://www.mathjax.org/) from a CDN |
-| `mathjax-embedded` | ~1.85 MB | yes | Embeds the whole **MathJax** bundle |
+| `mathjax-embedded` | ~1.85 MB | limited | Embeds the main **MathJax** bundle; extra glyph data and TeX extensions may still need the network |
 
-The built-in **MathJax** is the [tex-mml-svg](https://docs.mathjax.org/en/latest/web/components/combined.html#tex-mml-svg) configuration file, which draws math with inline SVG paths and therefore needs no web font. **KaTeX** needs its own fonts, so `katex-embedded` carries them inside its stylesheet as `data` URLs.
+The built-in **MathJax** is the [tex-mml-svg](https://docs.mathjax.org/en/latest/web/components/combined.html#tex-mml-svg) configuration file, which draws math with inline SVG paths. MathJax 4 still loads some glyph data and TeX extensions on demand, so formulas such as `\mathbb{R}` or `\cancel{x}` can need additional downloads even in embedded mode. If that glyph data cannot be downloaded, MathJax can leave every formula on the page unrendered, not only the one which needs it. Use `katex-embedded` for offline math. **KaTeX** needs its own fonts, so this mode carries them inside its stylesheet as `data` URLs.
 
 Use `--no-math` to leave the math alone. The delimiters are then not treated as math at all, so a `$` in the text stays a `$`.
 
@@ -157,9 +159,11 @@ A ` ```mermaid ` block is drawn as a diagram by [Mermaid](https://mermaid.js.org
 | Mode | Added | Works offline | Notes |
 | --- | --- | --- | --- |
 | `client` (default) | ~0 | no | Loads **Mermaid** from a CDN |
-| `embedded` | ~3.4 MB | yes | Embeds the whole **Mermaid** bundle |
+| `embedded` | ~5.5 MB | yes | Embeds the whole **Mermaid** bundle |
 
-The built-in **Mermaid** is the UMD build, which carries every diagram type in one file. The ES module build is smaller to start with, but it loads the rest on demand, so it could never work offline.
+The built-in **Mermaid** is the IIFE build, which carries every diagram type in one file. The ES module build is smaller to start with, but it loads the rest on demand, so it would need additional files offline.
+
+Mermaid 12 requires an ES2024-capable browser, such as Safari 17.4 or newer. It uses the new default layout and appearance, so diagrams can look different from Mermaid 11. See the [Mermaid 12 release notes](https://github.com/mermaid-js/mermaid/releases/tag/mermaid%4012.0.0) for the browser requirements and visual changes.
 
 The diagrams follow the color theme, so `--theme dark` and the `prefers-color-scheme` media feature switch them to the dark **Mermaid** theme as well.
 
@@ -171,19 +175,21 @@ By default, the output HTML file follows the `prefers-color-scheme` media featur
 
 ## Offline Usage
 
-The default math and Mermaid modes load their library from a CDN, so a file which contains math or a diagram needs the network. Pick the embedded modes to avoid that.
+The default math and Mermaid modes load their library from a CDN, so a file which contains math or a diagram needs the network. Use `katex-embedded` for math and `embedded` for Mermaid to avoid those downloads.
 
 ```bash
 markdown2html-converter /path/to/file.md --math-mode katex-embedded --mermaid-mode embedded --no-cjk-fonts --embed-images
 ```
 
-`--math-mode katex-embedded` (or `mathjax-embedded`) keeps the math renderer inside the file, `--mermaid-mode embedded` does the same for the diagrams, `--no-cjk-fonts` drops the only other CDN reference, and `--embed-images` inlines the local images it refers to. The result is a completely self-contained HTML file.
+`--math-mode katex-embedded` keeps the math renderer and its fonts inside the file, `--mermaid-mode embedded` does the same for the diagrams, `--no-cjk-fonts` drops the CJK font CDN references, and `--embed-images` inlines supported local images inside the base path. With those images embedded and no other external resources in the document, the result is a self-contained HTML file. Remote images and raw HTML resources are still external.
+
+`mathjax-embedded` embeds the main library but can still download dynamic glyph data and TeX extensions. It does not guarantee offline rendering, because one formula whose glyph data cannot be downloaded can leave all the math on the page unrendered.
 
 Each embedded library is only written when the document actually uses it, so a file with no math and no diagram stays small either way.
 
 ## Updating the Built-in Assets
 
-Two files under `resources` are generated rather than taken from upstream as-is, so they need a step of their own.
+The bundled versions are KaTeX 0.19.0, highlight.js 11.12.0, Mermaid 12.2.0, MathJax 4.1.3, and github-markdown-css 5.9.0. Some assets need the preparation steps below.
 
 `resources/katex.min.css` is the stylesheet of **KaTeX** with its woff2 fonts inlined as `data` URLs and the woff and ttf fallbacks dropped. To move to another **KaTeX** version, copy the `katex.min.js` of its `dist` directory over `resources/katex.min.js`, then build the stylesheet out of the same `dist` directory.
 
@@ -191,13 +197,17 @@ Two files under `resources` are generated rather than taken from upstream as-is,
 node tools/build-katex-css.js /path/to/katex/dist > resources/katex.min.css
 ```
 
+`resources/highlight.min.js` uses the browser build from `@highlightjs/cdn-assets`, followed by the same version's `languages/apache.min.js`, `languages/dockerfile.min.js`, and `languages/nginx.min.js`. These additions keep the existing language set, since they are not in the package's common build. Its `styles/github.min.css` and `styles/github-dark.min.css` provide the highlight themes; remove their initial `pre code.hljs` and `code.hljs` layout rules so that the Markdown stylesheet continues to control code padding and scrolling.
+
 `resources/highlight-languages.txt` lists the languages, aliases included, which `resources/highlight.min.js` registers. Regenerate it whenever the **highlight.js** build changes, and update the language list in this README to match.
 
 ```bash
-node tools/list-highlight-languages.js resources/highlight.min.js
+node tools/list-highlight-languages.js resources/highlight.min.js > resources/highlight-languages.txt
 ```
 
-`resources/mermaid.min.js` is taken from the `dist` directory of the **Mermaid** package as-is. It has to be `mermaid.min.js`, the UMD build, and not one of the `.mjs` files, because those load the diagram types from separate chunks at runtime.
+`resources/mermaid.min.js` is taken from the `dist` directory of the **Mermaid** package as-is. It has to be `mermaid.min.js`, the IIFE build, and not one of the `.mjs` files, because those load the diagram types from separate chunks at runtime. Mermaid 12's package tooling requires Node.js 22.12 or newer; readers of the generated HTML only need a supported browser.
+
+`resources/mermaid-render.js` picks the `redux-color` and `redux-dark-color` themes of Mermaid 12. Check that they still exist when moving to another major version of **Mermaid**.
 
 The CDN URLs of the client modes are pinned in `src/resources.rs` and have to be moved together with the files above, so that every mode renders the same output.
 

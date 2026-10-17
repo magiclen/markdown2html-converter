@@ -69,7 +69,7 @@ impl std::error::Error for UnknownTheme {}
 /// How the math in a Markdown file is rendered.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum MathMode {
-    /// Embed the whole **MathJax** bundle.
+    /// Embed the **MathJax** bundle; extra fonts and TeX extensions may still need the network.
     MathJaxEmbedded,
     /// Load **MathJax** from a CDN.
     MathJaxClient,

@@ -11,7 +11,13 @@ impl Output {
     #[inline]
     pub(crate) fn new(minify: bool, capacity: usize) -> Self {
         Self {
-            minifier: minify.then(HTMLMinifierHelper::new),
+            minifier: minify.then(|| {
+                let mut minifier = HTMLMinifierHelper::new();
+
+                minifier.minify_code = false;
+
+                minifier
+            }),
             buffer:   Vec::with_capacity(capacity),
         }
     }
@@ -30,7 +36,7 @@ impl Output {
 
     /// Append text which is already minified. It saves the minifier from scanning big assets again.
     ///
-    /// The minifier holds the content of a `style` or a `script` element back until the closing tag, while this method writes straight to the output buffer. Mixing the two inside one element would therefore swap their order, so this method has to cover the whole content of an element.
+    /// This skips the scanner, so it must cover the whole content of a `style` or a `script` element to keep the scanner state in sync.
     #[inline]
     fn indigest<S: AsRef<[u8]>>(&mut self, text: S) {
         self.buffer.extend_from_slice(text.as_ref());
@@ -104,7 +110,15 @@ impl Output {
     }
 
     #[inline]
-    pub(crate) fn into_html(self) -> Vec<u8> {
-        self.buffer
+    pub(crate) fn into_html(mut self) -> Result<Vec<u8>, HTMLMinifierError> {
+        if let Some(ref mut minifier) = self.minifier {
+            match minifier.finish(&mut self.buffer) {
+                // Raw HTML kept by `allow_unsafe` can leave an element open, but the output has already been fully written, just like without minification.
+                Ok(()) | Err(HTMLMinifierError::IncompleteInput) => (),
+                Err(error) => return Err(error),
+            }
+        }
+
+        Ok(self.buffer)
     }
 }

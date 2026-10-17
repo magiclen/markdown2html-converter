@@ -46,34 +46,40 @@ const SCAFFOLDING_CAPACITY: usize = 512;
 /// );
 /// ```
 pub fn convert(markdown: &str, options: &ConvertOptions) -> Result<Vec<u8>, ConvertError> {
-    let comrak_options = markdown::build_comrak_options(options);
+    // Release the AST and image cache before allocating the final output.
+    let (title, used_assets, markdown_html) = {
+        let comrak_options = markdown::build_comrak_options(options);
 
-    let arena = Arena::new();
-    let root = parse_document(&arena, markdown, &comrak_options);
+        let arena = Arena::new();
+        let root = parse_document(&arena, markdown, &comrak_options);
 
-    let title = match options.title.map(str::trim).filter(|title| !title.is_empty()) {
-        Some(title) => Cow::from(title),
-        None => match markdown::document_title(root) {
+        let title = match options.title.map(str::trim).filter(|title| !title.is_empty()) {
             Some(title) => Cow::from(title),
-            None => Cow::from(
-                options
-                    .default_title
-                    .map(str::trim)
-                    .filter(|title| !title.is_empty())
-                    .unwrap_or(FALLBACK_TITLE),
-            ),
-        },
+            None => match markdown::document_title(root) {
+                Some(title) => Cow::from(title),
+                None => Cow::from(
+                    options
+                        .default_title
+                        .map(str::trim)
+                        .filter(|title| !title.is_empty())
+                        .unwrap_or(FALLBACK_TITLE),
+                ),
+            },
+        };
+
+        let used_assets = markdown::used_assets(root, options);
+
+        let mut markdown_html = String::with_capacity(markdown.len() * 3 / 2);
+
+        // Writing into a `String` never fails.
+        format_html(root, &comrak_options, &mut markdown_html).unwrap();
+
+        (title, used_assets, markdown_html)
     };
 
-    let used_assets = markdown::used_assets(root, options);
     let has_code = options.highlight && used_assets.highlight;
     let math_mode = options.math.filter(|_| used_assets.math);
     let mermaid_mode = options.mermaid.filter(|_| used_assets.mermaid);
-
-    let mut markdown_html = String::with_capacity(markdown.len() * 3 / 2);
-
-    // Writing into a `String` never fails.
-    format_html(root, &comrak_options, &mut markdown_html).unwrap();
 
     let mut output = Output::new(
         options.minify,
@@ -148,7 +154,13 @@ pub fn convert(markdown: &str, options: &ConvertOptions) -> Result<Vec<u8>, Conv
 
                 match options.mathjax_js {
                     Some(js) => output.script(html_escape::encode_script(js).as_ref())?,
-                    None => output.minified_script(MATH_JAX_JS)?,
+                    None => {
+                        // An inline bundle cannot find its own base URL.
+                        output.script(format!(
+                            "MathJax.loader = {{ paths: {{ mathjax: \"{MATH_JAX_CDN_ROOT}\" }} }};"
+                        ))?;
+                        output.minified_script(MATH_JAX_JS)?;
+                    },
                 }
             },
             MathMode::MathJaxClient => {
@@ -211,7 +223,7 @@ pub fn convert(markdown: &str, options: &ConvertOptions) -> Result<Vec<u8>, Conv
     output.digest("</body>")?;
     output.digest("</html>")?;
 
-    Ok(output.into_html())
+    output.into_html()
 }
 
 /// Estimate how big the output is going to be. The assets are what makes it big, so only the ones which are going to be written are counted.

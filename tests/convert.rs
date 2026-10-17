@@ -24,6 +24,15 @@ fn title_comes_from_the_first_heading() {
 }
 
 #[test]
+fn the_heading_title_includes_math() {
+    for (markdown, expected) in [("# About $x$", "About x"), ("# $E=mc^2$", "E=mc^2")] {
+        let html = convert_to_string(markdown, &ConvertOptions::default());
+
+        assert_eq!(expected, title_of(html.as_str()));
+    }
+}
+
+#[test]
 fn title_comes_from_the_front_matter() {
     let markdown = "---\ntitle: \"From the front matter\"\n---\n\n# Hello world!\n";
 
@@ -103,7 +112,7 @@ fn an_embedded_math_mode_carries_the_whole_library() {
     let katex = math_html(MathMode::KatexEmbedded);
 
     assert!(mathjax.contains("MathJax"));
-    assert!(!mathjax.contains("npm/mathjax"));
+    assert!(!mathjax.contains("<script src="));
 
     assert!(katex.contains("katex.render"));
     assert!(!katex.contains("npm/katex"));
@@ -269,16 +278,46 @@ fn headings_get_an_anchor() {
 
 #[test]
 fn raw_html_is_only_kept_when_it_is_allowed() {
-    let safe = convert_to_string("<b>bold</b>", &ConvertOptions::default());
+    let markdown = "<b>bold</b>\n\n<script>window.raw = true;</script>\n";
+    let safe = convert_to_string(markdown, &ConvertOptions::default());
 
     let options = ConvertOptions {
         allow_unsafe: true,
         ..ConvertOptions::default()
     };
-    let unsafe_ = convert_to_string("<b>bold</b>", &options);
+    let unsafe_ = convert_to_string(markdown, &options);
 
     assert!(!safe.contains("<b>bold</b>"));
+    assert!(!safe.contains("window.raw"));
     assert!(unsafe_.contains("<b>bold</b>"));
+    assert!(unsafe_.contains("<script>window.raw"));
+}
+
+#[test]
+fn unclosed_raw_html_can_still_be_minified() {
+    let options = ConvertOptions {
+        allow_unsafe: true,
+        ..ConvertOptions::default()
+    };
+
+    let html = convert_to_string("Use the <code> element.\n", &options);
+
+    assert!(html.contains("<p>Use the <code> element.</p>"));
+}
+
+#[test]
+fn code_whitespace_is_preserved() {
+    for minify in [false, true] {
+        let options = ConvertOptions {
+            minify,
+            ..ConvertOptions::default()
+        };
+
+        let html = convert_to_string("`a  b`\n\n```\n  a  b\n```\n", &options);
+
+        assert!(html.contains("<code>a  b</code>"));
+        assert!(html.contains("<pre><code>  a  b\n</code></pre>"));
+    }
 }
 
 #[test]

@@ -26,8 +26,8 @@ terminal_size = "0.4"
 anyhow = "1"
 same-file = "1"
 
-html-minifier = "5.0.1"
-comrak = { version = "0.54", default-features = false }
-html-escape = "0.2"
+html-minifier = "6"
+comrak = { version = "0.56", default-features = false }
+html-escape = "0.3"
 base64 = "0.23"
-yaml-rust2 = { version = "0.11", default-features = false }
+yaml-rust2 = { version = "0.13", default-features = false }

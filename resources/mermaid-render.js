@@ -13,7 +13,8 @@ var theme = document.documentElement.getAttribute('data-theme');
 var dark = theme === 'dark'
     || (theme === null && window.matchMedia('(prefers-color-scheme: dark)').matches);
 
-mermaid.initialize({ startOnLoad: false, theme: dark ? 'dark' : 'default' });
+// `redux-color` is the new default theme of Mermaid 12, and `redux-dark-color` is its dark version.
+mermaid.initialize({ startOnLoad: false, theme: dark ? 'redux-dark-color' : 'redux-color' });
 
 // `querySelector` has to be repeated here, because its default only applies when `run` is given no argument at all.
 // `suppressErrors` keeps a single broken diagram from stopping the rest of the document from being drawn.

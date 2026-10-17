@@ -7,7 +7,7 @@ use std::{
 };
 
 use base64::{Engine, engine::general_purpose::STANDARD as BASE64};
-use comrak::nodes::{Node, NodeCode, NodeValue};
+use comrak::nodes::{Node, NodeValue};
 use yaml_rust2::YamlLoader;
 
 use crate::{ConvertOptions, HighlightLanguages, resources::HIGHLIGHT_LANGUAGES};
@@ -41,7 +41,6 @@ pub(crate) fn build_comrak_options(options: &ConvertOptions) -> comrak::Options<
     comrak_options.extension.subscript = true;
     comrak_options.extension.superscript = true;
     comrak_options.extension.table = true;
-    comrak_options.extension.tagfilter = true;
     comrak_options.extension.tasklist = true;
 
     comrak_options.parse.relaxed_tasklist_matching = true;
@@ -97,11 +96,12 @@ pub(crate) fn document_title(root: Node) -> Option<String> {
                 }
             },
             NodeValue::Heading(heading) if heading.level == 1 => {
-                let title = node_text(node);
+                let text = node.collect_text();
+                let title = text.trim();
 
                 if !title.is_empty() {
                     // A front matter is always the first node, so nothing can override this title any more.
-                    return Some(title);
+                    return Some(title.to_string());
                 }
             },
             _ => (),
@@ -113,10 +113,16 @@ pub(crate) fn document_title(root: Node) -> Option<String> {
 
 /// Check which optional assets a document needs.
 pub(crate) fn used_assets(root: Node, options: &ConvertOptions) -> UsedAssets {
+    let wants_highlight = options.highlight;
+    let wants_math = options.math.is_some();
     // A ```mermaid block is a diagram only when Mermaid is going to draw it, and an ordinary code block otherwise.
     let wants_mermaid = options.mermaid.is_some();
 
     let mut used_assets = UsedAssets::default();
+
+    if !wants_highlight && !wants_math && !wants_mermaid {
+        return used_assets;
+    }
 
     for node in root.descendants() {
         match node.data.borrow().value {
@@ -127,7 +133,10 @@ pub(crate) fn used_assets(root: Node, options: &ConvertOptions) -> UsedAssets {
                     used_assets.math = true;
                 } else if wants_mermaid && lang == "mermaid" {
                     used_assets.mermaid = true;
-                } else if is_highlighted(options.highlight_languages, lang) {
+                } else if wants_highlight
+                    && !used_assets.highlight
+                    && is_highlighted(options.highlight_languages, lang)
+                {
                     // Code blocks without a language, or with one highlight.js cannot handle, are left alone.
                     used_assets.highlight = true;
                 }
@@ -136,7 +145,10 @@ pub(crate) fn used_assets(root: Node, options: &ConvertOptions) -> UsedAssets {
             _ => (),
         }
 
-        if used_assets.highlight && used_assets.math && (used_assets.mermaid || !wants_mermaid) {
+        if (used_assets.highlight || !wants_highlight)
+            && (used_assets.math || !wants_math)
+            && (used_assets.mermaid || !wants_mermaid)
+        {
             break;
         }
     }
@@ -169,24 +181,6 @@ fn front_matter_title(front_matter: &str) -> Option<String> {
     let title = documents.first()?["title"].as_str()?.trim();
 
     (!title.is_empty()).then(|| title.to_string())
-}
-
-/// Collect the plain text of a node and of all its descendants.
-fn node_text(node: Node) -> String {
-    let mut text = String::new();
-
-    for descendant in node.descendants() {
-        match descendant.data.borrow().value {
-            NodeValue::Text(ref literal) => text.push_str(literal),
-            NodeValue::Code(NodeCode {
-                ref literal, ..
-            }) => text.push_str(literal),
-            NodeValue::LineBreak | NodeValue::SoftBreak => text.push(' '),
-            _ => (),
-        }
-    }
-
-    text.trim().to_string()
 }
 
 /// Turn a local image into a `data` URL. Only the images which stay inside the base path are embedded.

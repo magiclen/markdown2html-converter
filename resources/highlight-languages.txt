@@ -1,5 +1,5 @@
 # The languages which the bundled highlight.min.js registers, aliases included.
-# Regenerate with: node tools/list-highlight-languages.js resources/highlight.min.js
+# Regenerate with: node tools/list-highlight-languages.js resources/highlight.min.js > resources/highlight-languages.txt
 apache
 apacheconf
 atom
@@ -38,12 +38,15 @@ java
 javascript
 js
 json
+json5
 jsonc
 jsp
 jsx
 kotlin
 kt
+ktm
 kts
+ktx
 less
 lua
 mak
