@@ -108,3 +108,45 @@ jobs:
         with:
           toolchain: ${{ matrix.toolchain }}
       - run: cargo test --release --lib --bins ${{ matrix.features }}
+
+  create-release:
+    needs: [tests-1, tests-2]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: taiki-e/create-gh-release-action@v1
+        with:
+          # (required) GitHub token for creating GitHub Releases.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-assets:
+    needs: create-release
+    strategy:
+      matrix:
+        include:
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-latest
+          - target: aarch64-apple-darwin
+            os: macos-latest
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            os: macos-latest
+          - target: universal-apple-darwin
+            os: macos-latest
+          - target: x86_64-pc-windows-gnu
+            os: windows-latest
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: taiki-e/upload-rust-binary-action@v1
+        with:
+          # (required) Comma-separated list of binary names (non-extension portion of filename) to build and upload.
+          # Note that glob pattern is not supported yet.
+          bin: markdown2html-converter
+          archive: $bin-$tag-$target
+          # (optional) Target triple, default is host triple.
+          target: ${{ matrix.target }}
+          checksum: sha256
+          # (required) GitHub token for uploading assets to GitHub Releases.
+          token: ${{ secrets.GITHUB_TOKEN }}
